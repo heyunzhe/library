@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>借阅记录查询</title>
+    <link rel="stylesheet" href="../css/view-lend-records.css">
+</head>
+<body>
+    <div class="container">
+        <h1>借阅记录查询</h1>
+        <form id="lendRecordsForm" method="post" action="/lend/records">
+            <select name="class" id="queryType">
+                <option value="1">全部记录</option>
+                <option value="2">借阅日期</option>
+                <option value="3">用户帐号</option>
+            </select>
+            <input type="text" id="queryInput" name="lend_date" placeholder="请输入查询内容">
+            <button type="submit">查询</button>
+        </form>
+        <table id="lendRecordsTable">
+            <thead>
+                <tr>
+                    <th>借阅ID</th>
+                    <th>用户账号</th>
+                    <th>书籍标题</th>
+                    <th>ISBN</th>
+                    <th>借阅日期</th>
+                    <th>预计归还日期</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- 数据将通过JavaScript动态添加 -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="../js/view-lend-records.js"></script>
+
+</body>
+</html>

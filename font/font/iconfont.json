@@ -1,0 +1,16 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "41665645",
+      "name": "场馆说明",
+      "font_class": "changguanshuoming",
+      "unicode": "e678",
+      "unicode_decimal": 59000
+    }
+  ]
+}

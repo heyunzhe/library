@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信息查询</title>
+    <link rel="stylesheet" href="../css/view-user.css">
+</head>
+<body>
+    <div class="container">
+        <h1>用户信息查询</h1>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="输入用户账号搜索">
+            <button id="searchButton">搜索</button>
+        </div>
+        <table id="userTable">
+            <thead>
+                <tr>
+                    <th>姓名</th>
+                    <th>账号</th>
+                    <th>当前借阅数量</th>
+                    <th>历史借阅数量</th>
+                    <th>生日</th>
+                    <th>年龄</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="userTableBody">
+                <!-- 用户数据将在这里动态插入 -->
+            </tbody>
+        </table>
+    </div>
+    <script src="../js/view-user.js"></script>
+</body>
+</html>

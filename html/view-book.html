@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理</title>
+    <link rel="stylesheet" href="../css/view-book.css">
+</head>
+<body>
+    <div class="container">
+        <h1>图书管理</h1>
+        <form id="searchForm" class="search-form">
+            <select id="searchCategory">
+                <option value="1">关键词</option>
+                <option value="2">书名</option>
+                <option value="3">作者</option>
+                <option value="4">ISBN</option>
+                <!-- <option value="5">推荐图书</option> -->
+            </select>
+            <input type="text" id="searchInput" placeholder="输入搜索内容">
+            <button type="submit">查询</button>
+        </form>
+        <table>
+            <thead>
+                <tr>
+                    <th>书名</th>
+                    <th>作者</th>
+                    <th>ISBN</th>
+                    <th>出版社</th>
+                    <th>当前可借数</th>
+                    <th>是否推荐</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="bookList">
+                <!-- 图书列表将通过JavaScript动态加载 -->
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 详细信息模态窗口 -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>图书详细信息</h2>
+            <div id="detailContent">
+
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑模态窗口 -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>编辑图书信息</h2>
+            <form id="editForm">
+                <input type="hidden" id="yisbn" name="yisbn">
+                <div class="form-group">
+                    <label for="title">书名</label>
+                    <input type="text" id="title" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="author">作者</label>
+                    <input type="text" id="author" name="author" required>
+                </div>
+                <div class="form-group">
+                    <label for="book_type">图书类型</label>
+                    <input type="text" id="book_type" name="book_type" required>
+                </div>
+                <div class="form-group">
+                    <label for="press">出版社</label>
+                    <input type="text" id="press" name="press" required>
+                </div>
+                <div class="form-group">
+                    <label for="press_date">出版日期</label>
+                    <input type="date" id="press_date" name="press_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="isbn">ISBN</label>
+                    <input type="text" id="isbn" name="isbn" required>
+                </div>
+                <div class="form-group">
+                    <label for="cover">封面</label>
+                    <input type="file" id="cover" name="cover" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="intro">简介</label>
+                    <textarea id="intro" name="intro" rows="3"></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="price">价格</label>
+                    <input type="number" id="price" name="price" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="amount">数量</label>
+                    <input type="number" id="amount" name="amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="lend_amount">可借数量</label>
+                    <input type="number" id="lend_amount" name="lend_amount" required>
+                </div>
+                <div class="form-group">
+                    <label for="cur_lend_amount">当前可借数量</label>
+                    <input type="number" id="cur_lend_amount" name="cur_lend_amount" required>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="rec_state" name="rec_state" value="0">
+                        是否推荐
+                    </label>
+                </div>
+                <div class="form-group" id="recTypeContainer" style="display: none;">
+                    <label for="rec_type">推荐类型</label>
+                    <input type="text" id="rec_type" name="rec_type">
+                </div>
+                <button type="button" id="saveChanges">保存更改</button>
+                <button type="button" id="deleteBook">删除</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/view-book.js"></script>
+</body>
+</html>

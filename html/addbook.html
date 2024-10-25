@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加图书</title>
+    <link rel="stylesheet" href="../css/addbook.css">
+</head>
+<body>
+    <h1>图书管理系统</h1>
+    <form action="/add/book" method="post" enctype="multipart/form-data" id="addbook">
+        <h2>添加新书</h2>
+        <label for="title">标题：</label>
+        <input type="text" name="title" id="title" required>
+        
+        <label for="author">作者：</label>
+        <input type="text" name="author" id="author" required>
+        
+        <label for="book_type">类型：</label>
+        <input type="text" name="book_type" id="book_type" required>
+        
+        <label for="press">出版社：</label>
+        <input type="text" name="press" id="press" required>
+        
+        <label for="press_date">出版日期：</label>
+        <input type="date" name="press_date" id="press_date" required>
+        
+        <label for="isbn">ISBN：</label>
+        <input type="text" name="isbn" id="isbn" required>
+        
+        <label for="cover">封面：</label>
+        <input type="file" name="cover" accept="image/*" id="cover" required>
+        
+        <label for="intro">简介：</label>
+        <input type="text" name="intro" id="intro" required>
+        
+        <label for="price">价格：</label>
+        <input type="text" name="price" id="price" required>
+        
+        <label for="amount">数量：</label>
+        <input type="text" name="amount" id="amount" required>
+        
+        <label for="lend_amount">可借数：</label>
+        <input type="text" name="lend_amount" id="lend_amount" required>
+        
+        <label>
+            <input type="checkbox" name="rec_state" value="1" id="recStateCheckbox"> 是否推荐
+        </label>
+        
+        <input type="text" name="rec_type" id="recTypeInput" class="hidden" placeholder="请输入推荐类型">
+        <button type="reset">清空</button>
+        <button type="submit">添加图书</button>
+    </form>
+
+    <script src="../js/addbook.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>添加公告</title>
+    <link rel="stylesheet" href="../css/addnotice.css">
+</head>
+<body>
+    <div class="container">
+        <h1>添加公告</h1>
+        <form action="/addno" method="post" id="addnotice">
+            <div class="form-group">
+                <label for="notice_date">公告日期：</label>
+                <input type="date"  id="notice_date" name="notice_date" required>
+            </div>
+            <div class="form-group">
+                <label for="notice_title">公告标题：</label>
+                <input type="text" id="notice_title" name="notice_title" required>
+            </div>
+            <div class="form-group">
+                <label for="notice">公告内容：</label>
+                <textarea id="notice" name="notice" required></textarea>
+            </div>
+            <button type="submit">确定</button>
+        </form>
+    </div>
+
+    <script src="../js/addnotice.js"></script>
+
+</body>
+</html>

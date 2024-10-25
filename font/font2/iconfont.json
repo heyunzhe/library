@@ -1,0 +1,16 @@
+{
+  "id": "",
+  "name": "",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "35501997",
+      "name": "近期调整_复制",
+      "font_class": "jinqitiaozheng_fuzhi",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    }
+  ]
+}

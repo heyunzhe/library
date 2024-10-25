@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智慧图书馆</title>
+
+    <link rel="stylesheet"  href="../css/library.css">
+    <link rel="stylesheet" href="../font/font/iconfont.css">
+    <link rel="stylesheet" href="../font/font1/iconfont.css">
+    <link rel="stylesheet" href="../font/font2/iconfont.css">
+    <link rel="stylesheet" href="../font/font3/iconfont.css">
+    <link rel="stylesheet" href="../font/font4/iconfont.css">
+    <link rel="stylesheet" href="../font/font5/iconfont.css">
+    <link rel="stylesheet" href="../font/font6/iconfont.css">
+    <link rel="stylesheet" href="../font/font7/iconfont.css">
+
+
+</head>
+
+<body>
+    <div class="fbox" id="fbox">
+        <div class="box1">
+            <img class="logo1" src="../images/logo.png" alt="">
+            <a class="user" id="authButton" href="/login">登录</a>
+        </div>
+    
+        <div class="box2">
+            <ul class="ul1">
+                <li>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+                <li><a href="/index">首页</a></li>
+                <li><a href="/lend/book">借阅图书</a></li>
+                <li><a href="/ranking">借阅排行榜</a></li>
+                <li><a href="#">动态公告</a></li>
+                <li><a href="/about">关于我们</a></li>
+            </ul>
+            <div class="box2-1" id="togglebutton">
+                <span class="iconfont icon-sousuo" id="sousuo"></span>搜索图书资源</div>
+        </div>
+        <div class="box3" id="search_div">
+            <div class="box4" id="book_search">图书搜索</div>
+            <div class="box5" id="web_search">站内搜索</div>
+            <div class="box6">
+                <p class="box6-1">图书搜索</p>
+                <div class="box7">
+                    <form action="/search/book" method="post">        
+                        <select name="selsearch" id="search_select">
+                            <option value="2">书名</option>
+                            <option value="3">作者</option>
+                            <option value="4">ISBN</option>
+                        </select>
+                    </div>
+                    <div class="box8">
+                        <input type="text" class="search" name="inpsearch" placeholder="请输入搜索内容">
+                    </div>
+                    <button>
+                        <div class="box9">搜索</div>
+                    </button>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="fbox1">
+        <div class="box10">
+            <p class="notice_title">馆内公告</p>
+            <ul>
+                <li><a>智慧图书馆2024国庆假期开放公告</a></li><br>
+                <li><a>智慧图书馆读者活动报名公告</a></li><br>
+                <li><a>智慧图书馆设施维护通知</a></li><br>
+                <li><a>读者满意度调查启动公告</a></li><br>
+                <li><a>书籍捐赠活动通知</a></li><br>
+                <li><a>智慧图书馆暑期开放时间调整公告</a></li>
+                <a class="more">更多</a>
+            </ul>
+            <p class="notice_title">馆内服务</p>
+            <ul>
+                <li><a>借阅服务</a>|<a>参考咨询</a></li><br>
+                <li><a>自习室</a>|<a>电子资源访问</a></li><br>
+                <li><a>文献传递服务</a>|<a>读者活动</a></li><br>
+                <li><a>计算机及网络服务</a></li><br>
+                <a class="more">更多</a>
+            </ul>
+        </div>
+
+        <div class="box11">
+             <p class="notice_title">近期活动</p>
+            <ul>
+                <li><a>现代小说的演变讲座</a></li><br>
+                <li><a>亲子阅读分享会</a></li><br>
+                <li><a>人工智能应用讲座</a></li><br>
+                <li><a>古代文明历史文化展览</a></li><br>
+                <li><a>书法艺术体验工作坊</a></li><br>
+                <li><a>数字图书馆使用指南讲座</a></li><br>
+                <a class="more">更多</a>
+            </ul>
+
+        </div>
+        <div class="box12">
+            <p class="notice_title">馆员推荐</p>
+            <a href="https://mp.weixin.qq.com/s/rbuCLq8ONekJ7r0DeA6r_w" target="_blank"><img src="../images/rec.jpg" class="rec"></a>
+            <a href="https://mp.weixin.qq.com/s/W4b3yXktkOGWuyopXFBfsA" target="_blank"><img src="../images/rec1.jpg" class="rec1"></a>
+            <a class="more1">更多</a>
+
+        </div>
+
+        <div class="box13">
+            <p class="notice_title">馆内动态</p>
+            <ul>
+                <li><a>智慧图书馆：开启文化探索的新视野</a></li><br>
+                <li><a>智慧图书馆：与知识进行深度对话</a></li><br>
+                <li><a>智慧图书馆：发现学习的无限可能</a></li><br>
+                <li><a>智慧图书馆：引领信息时代的科技浪潮</a></li><br>
+                <li><a>智慧图书馆：共建知识共享的平台</a></li><br>
+                <a class="more">更多</a>
+            </ul>
+
+            <p class="notice_title">书籍调整</p>
+            <ul>
+                <li><a>《活着》书籍位置调整通知</a></li><br>
+                <li><a>《百年孤独》新书上架</a></li><br>
+                <li><a>《追风筝的人》临时下架说明</a></li><br>
+                <li><a>《红楼梦》馆藏更新信息</a></li><br>
+                <li><a>《狂人日记》新书上架</a></li><br>
+                <a class="more">更多</a>
+            </ul>
+        </div>
+
+    </div>
+    
+    <div class="fbox2">
+        <p class="more2"><a href="#">更多</a></p>
+        <div class="rec_book" >好书推荐</div>
+        <div class="new_book">新书上架</div>
+        <div class="box15"></div>
+        <div class="box16">
+            <img src="../images/image1.jpg" alt="" class="book">
+            <div class="title">活着</div>
+            <div class="author">余华</div>
+        </div>
+        <div class="box17">
+            <img src="../images/image2.jpg" alt="" class="book">
+            <div class="title">提问的艺术</div>
+            <div class="author">[美] 特里.费德姆</div>
+        </div>
+        <div class="box18">
+            <img src="../images/image3.jpg" alt="" class="book">
+            <div class="title">狂人日记</div>
+            <div class="author">鲁迅</div>
+        </div>
+        <div class="box19">
+            <img src="../images/image4.jpg" alt="" class="book">
+            <div class="title">钢铁是怎样炼成的</div>
+            <div class="author">（苏）尼·奥斯特洛夫斯基</div>
+        </div>
+        <div class="box20">
+            <img src="../images/image5.jpg" alt="" class="book">
+            <div class="title">骆驼祥子</div>
+            <div class="author">老舍</div>
+        </div>
+    </div>
+    
+    <div class="fbox3">
+                <div class="box21">
+                    <h3>关于我们</h3>
+                    <p>我们致力于为读者和图书馆管理员提供一个高效、便捷的在线平台，以提升图书馆的管理效率和用户体验</p>
+                </div>
+                <div class="box22">
+                    <h3>友情链接</h3>
+                    <div><a href="https://www.nlc.cn/web/index.shtml">中国国家图书馆</a></div>
+                    <div><a href="https://www.zjlib.cn/fwszzyfw/index.htm">浙江图书馆</a></div>
+                    <div><a href="https://www.nblib.cn/">宁波图书馆</a></div>
+                </div>
+                <div class="box23">
+                    <h3>联系方式</h3>
+                    <div>图书馆地址：浙江省宁波市鄞州区宁穿路3100号</div>
+                    <div>咨询电话：（0574）58202888</div>
+                    <div>电子邮箱：285679@163.com</div>
+                </div>
+                <div class="box24">
+                    <img src="../images/logo.png" alt=""  class="end-logo">
+                    <div  class="box24-1">
+                        <a href="">
+                            <br>
+                            <span  class="iconfont icon-weixinerweima" id="weixin"></span>
+                        </a>
+                    </div>
+                    <div  class="box24-2">
+                        <a href="">
+                            <br>
+                            <span  class="iconfont icon-weibo" id="weibo"></span>
+                        </a>
+                    </div>
+                    <div  class="box24-3">
+                        <a href="">
+                            <br>
+                            <span  class="iconfont icon-douyin" id="douyin"></span>
+                        </a>
+                    </div>
+                </div>
+                <div class="box25">版权所有 &copy;  智慧图书馆 </div>
+                <div class="box26"><a herf="#" id="adminLink">管理员入口 &gt;</a></div>
+                    <div id="adminModal" class="modal">
+                    <div class="modal-content">
+                        <span class="close">&times;</span>
+                        <h2>管理员登录</h2>
+                        <form id="adminForm" method="post" action="/admain">
+                            <input type="password" id="adminPassword" name="adminPassword" placeholder="请输入管理员密码" required>
+                        <button type="submit">登录</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="box14">
+            <a href="/about">
+            <span class="iconfont icon-changguanshuoming" id="change"></span>
+        </a>
+        <div>场馆说明</div>
+        <a href="/user/library">
+            <span class="iconfont icon-wodetushuguan" id="wodet"></span>
+        </a>
+        <div>我的图书馆</div>
+        <a href="">
+            <span class="iconfont  icon-jinqitiaozheng_fuzhi" id="jinqi"></span>
+        </a>
+        <div>近期调整</div>
+        <a id="openModalBtn" >
+            <span class="iconfont icon-yijianfankui" id="yijian"></span>
+        </a>
+        <div>意见反馈</div>
+    </div>
+    
+    <div class="modal-useropi" id="userOpiModal">
+    <div class="modal-content2">
+        <span class="close2">&times;</span>
+        <h2>提交意见建议</h2>
+        <form id="userOpiForm" action="/add/useropi" method="post">
+            <div class="form-group">
+                <label for="name">用户名：</label>
+                <input type="text" name="name" id="name" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">电话：</label>
+                <input type="text" name="phone" id="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="email">电子邮箱：</label>
+                <input type="text" name="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="idea">意见建议：</label>
+                <textarea name="idea" id="idea" required></textarea>
+            </div>
+            <button type="submit">提交</button>
+        </form>
+    </div>
+</div>
+
+
+    <script src="../js/admin.js"></script>
+    <script src="../js/library.js"></script>
+    <script src="../js/adduseropi.js"></script>
+
+</body>
+</html>

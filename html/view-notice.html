@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>公告管理</title>
+    <link rel="stylesheet" href="../css/view-notice.css">
+</head>
+<body>
+    <div class="container">
+        <h1>公告管理</h1>
+        <form id="searchForm" method="post" action="/view/notice">
+            <select name="chaxtype" id="chaxtype">
+                <option value="0">任意词</option>
+                <option value="1">公告编号</option>
+                <option value="2">公告日期</option>
+            </select>
+            <input type="text" name="notice_id" id="notice_id" placeholder="编号/日期/关键词"/>
+            <button type="submit">查询</button>
+        </form>
+
+        <table id="noticesTable">
+            <thead>
+                <tr>
+                    <th>公告编号</th>
+                    <th>公告日期</th>
+                    <th>公告标题</th>
+                    <th>公告内容</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="noticesList">
+                <!-- 公告列表将通过JavaScript动态加载 -->
+            </tbody>
+        </table>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>编辑公告</h2>
+            <form id="editForm">
+                <input type="hidden" id="edit_notice_id" name="notice_id">
+                <div class="form-group">
+                    <label for="edit_notice_date">公告日期：</label>
+                    <input type="date" id="edit_notice_date" name="notice_date" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_notice_title">公告标题：</label>
+                    <input type="text" id="edit_notice_title" name="notice_title" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_notice">公告内容：</label>
+                    <textarea id="edit_notice" name="notice" required></textarea>
+                </div>
+                <button type="submit">保存更改</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/view-notice.js"></script>
+</body>
+</html>

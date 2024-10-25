@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图书管理系统后台</title>
+    <link rel="stylesheet" href="../css/admin.css">
+
+
+    
+</head>
+<body >
+    <div class="container">
+        <aside class="sidebar">
+            <div class="logo">图书管理系统</div>
+            <nav>
+                <ul class="menu">
+                    <li><a href="/add/book">添加图书</a></li>
+                    <li><a href="/view/book">查看/编辑图书</a></li>
+                    <li><a href="/view/user">查询用户信息</a></li>
+                    <li><a href="/add/notice">添加公告</a></li>
+                    <li><a href="/view/notice">查询/编辑公告</a></li>
+                    <li><a href="/view/useropi">查询/回复用户意见建议</a></li>
+                    <li><a href="/lend/records">查询借阅记录</a></li>
+                    <li><a href="/return/records">查询归还记录</a></li>
+
+                    <li><a href="/logout">退出登录</a></li>
+
+                </ul>
+            </nav>
+        </aside>
+        <main class="content">
+            <header class="header">
+                <h1>后台操作界面</h1>
+            </header>
+            <section class="dashboard">
+                <div class="card">
+                    <h2>总图书数量</h2>
+                    <p>{{.Total_books_amount}}</p>
+                </div>
+                <div class="card">
+                    <h2>总用户数量</h2>
+                    <p>{{.Total_users_amount}}</p>
+                </div>
+                <div class="card">
+                    <h2>当前可借阅数量</h2>
+                    <p>{{.Total_lend_amount}}</p>
+                </div>
+                <div class="card">
+                    <h2>当前未归还数量</h2>
+                    <p>{{.Total_return_amount}}</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+
+</body>
+</html>
