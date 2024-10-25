@@ -179,4 +179,13 @@ func Init() {
 		errorLog.Println(err)
 	}
 
+	sessionstate := `CREATE TABLE IF NOT EXISTS session_state (
+	session_name TEXT,
+	session_id TEXT,
+	)`
+	_, err = db.Exec(sessionstate)
+	if err != nil {
+		errorLog.Println(err)
+	}
+
 }

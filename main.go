@@ -23,19 +23,19 @@ func main() {
 	http.HandleFunc("/view/useropi", mode.AdminAuthMiddleware(mode.ViewUserOpinionHandler))     //查询用户意见建议
 	http.HandleFunc("/replay/useropi", mode.AdminAuthMiddleware(mode.ReplayUserOpinionHandler)) // 回复用户意见建议
 
-	http.HandleFunc("/admin", mode.AdminHandler)                //登录后台
-	http.HandleFunc("/index", mode.IndexHandler)                //进入首页
-	http.HandleFunc("/lend/book", mode.LendBookHandler)         //进入借书界面
-	http.HandleFunc("/about", mode.AboutHandler)                //进入关于我们
-	http.HandleFunc("/add/useropi", mode.AddUserOpinionHandler) //用户上传意见
-	http.HandleFunc("/logout", mode.LogoutHandler)              //管理员退出登录
-	http.HandleFunc("/login", mode.LoginHandler)                //用户登录
-	http.HandleFunc("/ulogout", mode.UserLogoutHandler)         //用户退出登录
-	http.HandleFunc("/user/library", mode.UserLibraryHandler)   //进入个人中心界面
-	http.HandleFunc("/update/user", mode.UpdateUserHandler)     //更新用户信息
-	http.HandleFunc("/reset", mode.ResetpasswordHandler)        //重置用户密码
-	http.HandleFunc("/ranking", mode.RankingHandler)            //目前用于测试接口
-	http.HandleFunc("/return/book", mode.ReturnBookHandler)     //还书操作
+	http.HandleFunc("/admin", mode.AdminHandler)                                   //登录后台
+	http.HandleFunc("/index", mode.IndexHandler)                                   //进入首页
+	http.HandleFunc("/lend/book", mode.LendBookHandler)                            //进入借书界面
+	http.HandleFunc("/about", mode.AboutHandler)                                   //进入关于我们
+	http.HandleFunc("/add/useropi", mode.AddUserOpinionHandler)                    //用户上传意见
+	http.HandleFunc("/logout", mode.LogoutHandler)                                 //管理员退出登录
+	http.HandleFunc("/login", mode.LoginHandler)                                   //用户登录
+	http.HandleFunc("/ulogout", mode.UserLogoutHandler)                            //用户退出登录
+	http.HandleFunc("/user/library", mode.AuthMiddleware(mode.UserLibraryHandler)) //进入个人中心界面
+	http.HandleFunc("/update/user", mode.UpdateUserHandler)                        //更新用户信息
+	http.HandleFunc("/reset", mode.ResetpasswordHandler)                           //重置用户密码
+	http.HandleFunc("/ranking", mode.RankingHandler)                               //目前用于测试接口
+	http.HandleFunc("/return/book", mode.ReturnBookHandler)                        //还书操作
 
 	http.HandleFunc("/lend/records", mode.ViewLendRecords)
 	http.HandleFunc("/return/records", mode.ViewReturnRecords)
@@ -47,8 +47,6 @@ func main() {
 	http.Handle("/font/", fs)
 	http.Handle("/images/", fs)
 	http.Handle("/userphoto/", fs)
-
-	fmt.Println("123")
 
 	fmt.Println("服务器在 http://localhost:8080 上运行")
 	fmt.Println("服务器在 http://10.1.10.117:8080 上运行")
