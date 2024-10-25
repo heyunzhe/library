@@ -48,6 +48,8 @@ func main() {
 	http.Handle("/images/", fs)
 	http.Handle("/userphoto/", fs)
 
+	fmt.Println("123")
+
 	fmt.Println("服务器在 http://localhost:8080 上运行")
 	fmt.Println("服务器在 http://10.1.10.117:8080 上运行")
 
