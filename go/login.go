@@ -19,6 +19,7 @@ type Librarysum struct {
 	Total_lend_amount   int `json:"total_lend_amount"`
 	Total_return_amount int `json:"total_return_amount"`
 	Total_users_amount  int `json:"total_users_amount"`
+	Cur_user_amount     int `json:"cur_user_amount"`
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -344,6 +345,31 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var librarysum Librarysum
+
+	var sum1, sum2, sum3 int
+	err = db.QueryRow("SELECT COUNT(*) FROM users").Scan(&sum1)
+	if err != nil {
+		errorLog.Println("数据库错误：", err)
+		return
+	}
+	err = db.QueryRow("SELECT COUNT(*) FROM admin").Scan(&sum2)
+	if err != nil {
+		errorLog.Println("数据库错误：", err)
+		return
+	}
+	err = db.QueryRow("SELECT COUNT(*) FROM session_state").Scan(&sum3)
+	if err != nil {
+		errorLog.Println("数据库错误：", err)
+		return
+	}
+	librarysum.Cur_user_amount = sum3
+
+	_, err = db.Exec("UPDATE library_summary SET Total_users_amount = ?", sum1+sum2)
+	if err != nil {
+		errorLog.Println("数据库错误：", err)
+		return
+	}
+
 	row := db.QueryRow("SELECT * FROM library_summary")
 	err = row.Scan(&librarysum.Total_books_amount, &librarysum.Total_lend_amount, &librarysum.Total_return_amount, &librarysum.Total_users_amount)
 	if err != nil {

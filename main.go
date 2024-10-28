@@ -12,7 +12,7 @@ func main() {
 	mode.Init()
 	http.HandleFunc("/add/book", mode.AdminAuthMiddleware(mode.AddBooksHandler))          // 添加图书
 	http.HandleFunc("/update/book", mode.AdminAuthMiddleware(mode.UpdateBookHandler))     //更新图书
-	http.HandleFunc("/view/book", mode.ViewBookHandler)                                   //查询图书
+	http.HandleFunc("/view/book", mode.AdminAuthMiddleware(mode.ViewBookHandler))         //查询图书
 	http.HandleFunc("/delete/book", mode.AdminAuthMiddleware(mode.DeleteBookHandler))     //删除图书
 	http.HandleFunc("/view/user", mode.AdminAuthMiddleware(mode.ViewUserHandler))         //查询用户
 	http.HandleFunc("/add/notice", mode.AdminAuthMiddleware(mode.AddNoticeHandler))       //添加公告
@@ -28,17 +28,17 @@ func main() {
 	http.HandleFunc("/lend/book", mode.LendBookHandler)                            //进入借书界面
 	http.HandleFunc("/about", mode.AboutHandler)                                   //进入关于我们
 	http.HandleFunc("/add/useropi", mode.AddUserOpinionHandler)                    //用户上传意见
-	http.HandleFunc("/logout", mode.LogoutHandler)                                 //管理员退出登录
+	http.HandleFunc("/logout", mode.AdminAuthMiddleware(mode.LogoutHandler))       //管理员退出登录
 	http.HandleFunc("/login", mode.LoginHandler)                                   //用户登录
-	http.HandleFunc("/ulogout", mode.UserLogoutHandler)                            //用户退出登录
+	http.HandleFunc("/ulogout", mode.AuthMiddleware(mode.UserLogoutHandler))       //用户退出登录
 	http.HandleFunc("/user/library", mode.AuthMiddleware(mode.UserLibraryHandler)) //进入个人中心界面
 	http.HandleFunc("/update/user", mode.UpdateUserHandler)                        //更新用户信息
 	http.HandleFunc("/reset", mode.ResetpasswordHandler)                           //重置用户密码
 	http.HandleFunc("/ranking", mode.RankingHandler)                               //目前用于测试接口
 	http.HandleFunc("/return/book", mode.ReturnBookHandler)                        //还书操作
 
-	http.HandleFunc("/lend/records", mode.ViewLendRecords)
-	http.HandleFunc("/return/records", mode.ViewReturnRecords)
+	http.HandleFunc("/lend/records", mode.AdminAuthMiddleware(mode.ViewLendRecords))
+	http.HandleFunc("/return/records", mode.AdminAuthMiddleware(mode.ViewReturnRecords))
 	http.HandleFunc("/search/book", mode.ViewSearchBookHandler)
 
 	fs := http.FileServer(http.Dir("./"))

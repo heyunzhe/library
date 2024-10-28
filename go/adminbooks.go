@@ -588,21 +588,18 @@ func ViewReturnRecords(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
-		var a int
 		var rows *sql.Rows
 		var err error
+		class := r.FormValue("class")
 		return_date := r.FormValue("return_date")
-		if return_date == "" {
-			a = 1
-		} else {
-			a = 2
-		}
-		switch a {
 
-		case 1:
+		switch class {
+		case "1":
 			rows, err = db.Query("SELECT * FROM return_records")
-		case 2:
+		case "2":
 			rows, err = db.Query("SELECT * FROM return_records WHERE return_date = ?", return_date)
+		case "3":
+			rows, err = db.Query("SELECT * FROM lend_records WHERE username = ?", return_date)
 		default:
 			w.WriteHeader(http.StatusBadRequest) //有错误返回错误状态码400
 			return
