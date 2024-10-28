@@ -181,11 +181,20 @@ func Init() {
 
 	sessionstate := `CREATE TABLE IF NOT EXISTS session_state (
 	session_name TEXT,
-	session_id TEXT,
+	session_id TEXT
 	)`
 	_, err = db.Exec(sessionstate)
 	if err != nil {
 		errorLog.Println(err)
 	}
 
+	adminTable := `CREATE TABLE IF NOT EXISTS admin (
+	admin_id,
+	admin_password,
+	admin_role
+	)`
+	_, err = db.Exec(adminTable)
+	if err != nil {
+		errorLog.Println(err)
+	}
 }

@@ -11,7 +11,6 @@ import (
 )
 
 var store = sessions.NewCookieStore([]byte("your-secret-key")) // 使用安全的密钥
-var isAdminLoggedIn bool                                       // 用于追踪是否已有管理员登录
 var mu sync.Mutex
 
 // 汇总表结构体
@@ -266,7 +265,6 @@ func UserLogoutHandler(w http.ResponseWriter, r *http.Request) {
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	mu.Lock()
 	defer mu.Unlock()
-
 	session, err := store.Get(r, "admin-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -275,15 +273,47 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPost {
+		sessionID := generateSessionID()
+		adminID := r.FormValue("adminID")
 		adminPassword := r.FormValue("adminPassword")
-		if adminPassword == "123456" {
-			if isAdminLoggedIn {
-				http.Error(w, "已有其他管理员登录", http.StatusUnauthorized)
+
+		var num1, num2 string
+
+		err = db.QueryRow("SELECT admin_id,admin_password from admin WHERE admin_id = ?", adminID).Scan(&num1, &num2)
+		if err != nil {
+			if err == sql.ErrNoRows {
+				w.WriteHeader(http.StatusUnauthorized) //401
+				errorLog.Println("帐号或密码错误：", err)
 				return
 			}
-			session.Values["admin"] = "admin"
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+			errorLog.Println("服务器错误：", err)
+			return
+		}
+		if adminID == num1 && adminPassword == num2 {
+
+			var existingSessionID string
+			err = db.QueryRow("SELECT session_id FROM session_state WHERE session_name = ?", adminID).Scan(&existingSessionID)
+			if err == sql.ErrNoRows {
+				_, err = db.Exec("INSERT INTO session_state (session_name, session_id) VALUES (?, ?)", adminID, sessionID)
+				if err != nil {
+					errorLog.Println("数据库错误：", err)
+					return
+				}
+			} else if err != nil {
+				errorLog.Println("查询错误：", err)
+				return
+			} else {
+				_, err = db.Exec("UPDATE session_state SET session_id = ? WHERE session_name = ?", sessionID, adminID)
+				if err != nil {
+					errorLog.Println("数据库错误：", err)
+					return
+				}
+			}
+
+			session.Values["adminID"] = adminID
+			session.Values["sessionID"] = sessionID
 			session.Values["loggedin"] = true
-			isAdminLoggedIn = true // 标记为有管理员登录
 
 			session.Options = &sessions.Options{
 				Path:     "/",
@@ -337,56 +367,127 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func AdminisValidSession(r *http.Request) (bool, error) {
+	session, err := store.Get(r, "admin-session")
+	if err != nil {
+		return false, fmt.Errorf("获取会话失败: %v", err)
+	}
+
+	adminID, ok := session.Values["adminID"].(string)
+	if !ok {
+		return false, nil
+	}
+
+	sessionID, ok := session.Values["sessionID"].(string)
+	if !ok {
+		return false, nil
+	}
+
+	var storedSessionID string
+	err = db.QueryRow("SELECT session_id FROM session_state WHERE session_name = ?", adminID).Scan(&storedSessionID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return false, nil
+		}
+		return false, fmt.Errorf("查询数据库失败: %v", err)
+	}
+
+	return sessionID == storedSessionID, nil
+}
+
 func AdminAuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		session, err := store.Get(r, "admin-session")
+		valid, err := AdminisValidSession(r)
 		if err != nil {
-			http.Error(w, "会话错误", http.StatusInternalServerError)
-			errorLog.Println("获取会话错误", err)
+			errorLog.Println("验证会话时出错:", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
 			return
 		}
+		if !valid {
+			session, err := store.Get(r, "admin-session")
+			if err != nil {
+				http.Error(w, "获取会话失败", http.StatusInternalServerError)
+				errorLog.Println("获取会话错误", err)
+				return
+			}
 
-		loggedin, ok := session.Values["loggedin"].(bool)
-		if !ok || !loggedin {
-			http.Error(w, "权限不足", http.StatusUnauthorized)
+			loggedin, ok := session.Values["loggedin"].(bool)
+			if !ok || !loggedin {
+				http.Error(w, "权限不足", http.StatusUnauthorized)
+				return
+			}
+
+			delete(session.Values, "adminID")
+			delete(session.Values, "loggedin")
+			delete(session.Values, "sessionID")
+
+			session.Options.MaxAge = -1
+			err = session.Save(r, w)
+			if err != nil {
+				http.Error(w, "保存会话失败", http.StatusInternalServerError)
+				errorLog.Println("保存会话失败", err)
+				return
+			}
+
+			// 清除 Cookie
+			http.SetCookie(w, &http.Cookie{
+				Name:     "admin-session",
+				Value:    "",
+				Path:     "/",
+				MaxAge:   -1, // 过期
+				HttpOnly: true,
+				Secure:   false,
+				SameSite: http.SameSiteLaxMode,
+			})
+			http.Redirect(w, r, "/index", http.StatusSeeOther)
+
 			return
 		}
-
 		next.ServeHTTP(w, r)
 	}
+
 }
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
-	mu.Lock()
-	defer mu.Unlock()
-
+	// 获取会话
 	session, err := store.Get(r, "admin-session")
+	adminID, _ := session.Values["adminID"].(string)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "获取会话失败", http.StatusInternalServerError)
 		errorLog.Println("获取会话错误", err)
 		return
 	}
 
-	session.Values = make(map[interface{}]interface{})
-	// 设置 Cookie 的过期时间为过去的时间
-	session.Options.MaxAge = -1
-	session.Values["loggedin"] = false
-	delete(session.Values, "admin") // 清除管理员信息
-	err = session.Save(r, w)
+	// 清除会话中的用户信息
+	delete(session.Values, "adminID")
+	delete(session.Values, "loggedin")
+	delete(session.Values, "sessionID")
+
+	_, err = db.Exec("DELETE FROM session_state WHERE session_name = ?", adminID)
 	if err != nil {
-		http.Error(w, "保存会话失败", http.StatusInternalServerError)
+		errorLog.Println("删除会话失败：", err)
 		return
 	}
 
+	// 过期会话（设置 MaxAge 为 -1）
+	session.Options.MaxAge = -1
+	err = session.Save(r, w)
+	if err != nil {
+		http.Error(w, "保存会话失败", http.StatusInternalServerError)
+		errorLog.Println("保存会话失败", err)
+		return
+	}
+	// 清除 Cookie
 	http.SetCookie(w, &http.Cookie{
-		Name:   "admin-session", // 确保这里的名称与设置 cookie 时一致
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
+		Name:     "admin-session",
+		Value:    "",
+		Path:     "/",
+		MaxAge:   -1, // 过期
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
 	})
-
-	isAdminLoggedIn = false // 清除管理员登录状态
 	http.Redirect(w, r, "/index", http.StatusSeeOther)
 }
 

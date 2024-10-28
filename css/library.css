@@ -474,7 +474,7 @@ h3{
     color: #333;
 }
 
-.modal-content input[type="password"] {
+.modal-content input{
     width: 100%;
     padding: 10px;
     margin: 10px 0;

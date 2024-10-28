@@ -42,7 +42,7 @@ var modal = document.getElementById('adminModal');
                     document.getElementById('adminPassword').value = '';
                     window.location.href = '/admin'; // 重定向到管理页面
                 } else if (response.status === 401) {
-                    alert('密码错误或已有管理员登录');
+                    alert('帐号或密码错误');
                     document.getElementById('adminPassword').value = ''; // 清空密码输入框
                 } else {
                     throw new Error('服务器错误');
