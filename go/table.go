@@ -127,19 +127,18 @@ func Init() {
 		errorLog.Println(err)
 	}
 
-	// 图书调整表		调整编号	作者	书名	调整类型	调整日期	原因
-	// adjustbookTable := `CREATE TABLE IF NOT EXISTS adjust_books (
-	// adj_id INTEGER PRIMARY KEY AUTOINCREMENT,
-	// author TEXT,
-	// title TEXT,
-	// adj_type TEXT,
-	// adj_date TEXT,
-	// cause TEXT
-	// )`
-	// _, err = db.Exec(adjustbookTable)
-	// if err != nil {
-	// 	errorLog.Println(adjustbookTable)
-	// }
+	// 图书调整表		调整编号	调整日期	调整书的书名	调整书的isbn	调整内容
+	adjustbookTable := `CREATE TABLE IF NOT EXISTS adjust_books (
+	adjust_id INTEGER PRIMARY KEY AUTOINCREMENT,
+	adjust_date TEXT,
+	adjust_title TEXT,
+	adjust_isbn TEXT,
+	adjust_content TEXT
+	)`
+	_, err = db.Exec(adjustbookTable)
+	if err != nil {
+		errorLog.Println(adjustbookTable)
+	}
 
 	// 用户意见建议表		用户建议编号	用户名	电话	电子邮件	意见建议
 	useropinionTable := `CREATE TABLE IF NOT EXISTS user_opinions (
@@ -197,4 +196,5 @@ func Init() {
 	if err != nil {
 		errorLog.Println(err)
 	}
+
 }

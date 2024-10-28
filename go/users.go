@@ -78,16 +78,30 @@ type Useropi struct {
 // 查询用户
 func ViewUserHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-user.html")
+		session, _ := store.Get(r, "admin-session")
+		adminID, _ := session.Values["adminID"].(string)
+
+		var role string
+		err := db.QueryRow("SELECT admin_role FROM admin WHERE admin_id = ?", adminID).Scan(&role)
 		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
+			errorLog.Println("数据库错误：", err)
+			return
 		}
-		err = tmpl.ExecuteTemplate(w, "view-user.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		if role == "Admin" {
+			tmpl, err := template.ParseFiles("html/view-user.html")
+			if err != nil {
+				fmt.Printf("解析模板失败: %v\n", err)
+				http.Error(w, "服务器错误", http.StatusInternalServerError)
+			}
+			err = tmpl.ExecuteTemplate(w, "view-user.html", nil)
+			if err != nil {
+				fmt.Printf("执行模板失败: %v\n", err)
+				errorLog.Println("服务器错误：", err)
+				http.Error(w, "服务器错误", http.StatusInternalServerError)
+			}
+		} else {
+			http.Error(w, "权限不足", http.StatusUnauthorized)
+			return
 		}
 	}
 	if r.Method == http.MethodPost {
@@ -198,16 +212,30 @@ func ViewUserOpinionHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-useropi.html")
+		session, _ := store.Get(r, "admin-session")
+		adminID, _ := session.Values["adminID"].(string)
+
+		var role string
+		err := db.QueryRow("SELECT admin_role FROM admin WHERE admin_id = ?", adminID).Scan(&role)
 		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
+			errorLog.Println("数据库错误：", err)
+			return
 		}
-		err = tmpl.ExecuteTemplate(w, "view-useropi.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		if role == "Admin" {
+			tmpl, err := template.ParseFiles("html/view-useropi.html")
+			if err != nil {
+				fmt.Printf("解析模板失败: %v\n", err)
+				http.Error(w, "服务器错误", http.StatusInternalServerError)
+			}
+			err = tmpl.ExecuteTemplate(w, "view-useropi.html", nil)
+			if err != nil {
+				fmt.Printf("执行模板失败: %v\n", err)
+				errorLog.Println("服务器错误：", err)
+				http.Error(w, "服务器错误", http.StatusInternalServerError)
+			}
+		} else {
+			http.Error(w, "权限不足", http.StatusUnauthorized)
+			return
 		}
 	}
 }
