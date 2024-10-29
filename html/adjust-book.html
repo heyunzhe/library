@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>调整书籍</title>
+    <link rel="stylesheet" href="../css/addnotice.css">
+</head>
+<body>
+    <div class="container">
+        <h1>调整书籍</h1>
+        <form action="/adjust/book" method="post" id="adjustbook">
+            <div class="form-group">
+                <label for="adjust_date">调整日期：</label>
+                <input type="date"  id="adjust_date" name="adjust_date" required>
+            </div>
+            <div class="form-group">
+                <label for="adjust_title">调整标题：</label>
+                <input type="text" id="adjust_title" name="adjust_title" required>
+            </div>
+            <div class="form-group">
+                <label for="adjust_isbn">调整isbn：</label>
+                <input type="text" id="adjust" name="adjust_isbn" required></input>
+            </div>
+            <div class="form-group">
+                <label for="adjust_content">调整内容：</label>
+                <textarea id="adjust" name="adjust_content" required></textarea>
+            </div>
+            <button type="submit">确定</button>
+        </form>
+    </div>
+
+    <script src="../js/adjustbook.js"></script>
+
+</body>
+</html>
