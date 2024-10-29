@@ -2,12 +2,14 @@ package mode
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
-	"github.com/google/uuid"
-	"github.com/gorilla/sessions"
 	"net/http"
 	"sync"
 	"text/template"
+
+	"github.com/google/uuid"
+	"github.com/gorilla/sessions"
 )
 
 var store = sessions.NewCookieStore([]byte("your-secret-key")) // 使用安全的密钥
@@ -20,6 +22,12 @@ type Librarysum struct {
 	Total_return_amount int `json:"total_return_amount"`
 	Total_users_amount  int `json:"total_users_amount"`
 	Cur_user_amount     int `json:"cur_user_amount"`
+}
+
+type Rakinng struct {
+	Title string `json:"title"`
+	Isbn  string `json:"isbn"`
+	Count int    `json:"count"`
 }
 
 func IndexHandler(w http.ResponseWriter, r *http.Request) {
@@ -530,5 +538,29 @@ func RankingHandler(w http.ResponseWriter, r *http.Request) {
 			errorLog.Println("服务器错误：", err)
 			http.Error(w, "服务器错误", http.StatusInternalServerError)
 		}
+	}
+
+	if r.Method == http.MethodPost {
+		rows, err := db.Query("SELECT title,isbn,count(*) FROM lend_records GROUP BY isbn")
+		if err != nil {
+			errorLog.Println("数据库错误：", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer rows.Close()
+
+		var rankings []Rakinng
+		for rows.Next() {
+			var ranking Rakinng
+			err = rows.Scan(&ranking.Title, &ranking.Isbn, &ranking.Count)
+			if err != nil {
+				errorLog.Println("数据库错误：", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			rankings = append(rankings, ranking)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(rankings)
 	}
 }
