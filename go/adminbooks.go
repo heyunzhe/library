@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"text/template"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	// "golang.org/x/text/date"
@@ -507,6 +508,46 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusNotAcceptable) //返回错误状态吗406
 		}
 	}
+}
+
+func AdjustBookHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		tmpl, err := template.ParseFiles("html/adjust-book.html")
+		if err != nil {
+			fmt.Printf("解析模板失败: %v\n", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		}
+		err = tmpl.ExecuteTemplate(w, "adjust-book.html", nil)
+		if err != nil {
+			fmt.Printf("执行模板失败: %v\n", err)
+			errorLog.Println("服务器错误：", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		}
+	}
+
+	if r.Method == http.MethodPost {
+		adjust_date := r.FormValue("adjust_date")
+		adjust_title := r.FormValue("adjust_title")
+		adjust_isbn := r.FormValue("adjust_isbn")
+		adjust_content := r.FormValue("adjust_content")
+
+		adjustTime := time.Now().Truncate(24 * time.Hour)
+		adjustdate, _ := time.Parse("2006-01-02", adjust_date)
+		// 计算两个日期之间的差值
+		day := adjustdate.Sub(adjustTime.Truncate(24*time.Hour)).Hours() / 24
+		if day == 0 {
+			_, err := db.Exec("INSERT INTO adjust_books (adjust_date,adjust_title,adjust_isbn,adjust_content) values(?,?,?,?)", adjust_date, adjust_title, adjust_isbn, adjust_content)
+			if err != nil {
+				errorLog.Println("数据库错误：", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusUnauthorized)
+		}
+	}
+
 }
 
 func ViewLendRecords(w http.ResponseWriter, r *http.Request) {
