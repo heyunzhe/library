@@ -1,0 +1,90 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+.ranking-list {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    transition: background-color 0.3s;
+}
+
+.ranking-item:last-child {
+    border-bottom: none;
+}
+
+.ranking-item:hover {
+    background-color: #f9f9f9;
+}
+
+.rank {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    width: 40px;
+    text-align: center;
+}
+
+.rank-1 {
+    color: #ffd700;
+}
+
+.rank-2 {
+    color: #c0c0c0;
+}
+
+.rank-3 {
+    color: #cd7f32;
+}
+
+.book-cover {
+    width: 60px;
+    height: 90px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.book-info {
+    flex-grow: 1;
+}
+
+.book-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.book-isbn {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.borrow-count {
+    font-size: 16px;
+    color: #007bff;
+    font-weight: bold;
+}

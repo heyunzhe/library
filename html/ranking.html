@@ -1,15 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>图书借阅排行榜</title>
+    <link rel="stylesheet" href="../css/ranking.css">
 </head>
 <body>
-    <form action="/return" method="post">
-        isbn:<input type="text" name="isbn" id="">
-        time: <input type="date" name="exp_return_date">
-        <button type="submit">jie</button>
-    </form>
+    <div class="container">
+        <h1>图书借阅排行榜</h1>
+        <div id="ranking-list" class="ranking-list">
+            <!-- 排行榜内容将通过JavaScript动态添加 -->
+        </div>
+    </div>
+    <script src="../js/ranking.js"></script>
 </body>
 </html>
