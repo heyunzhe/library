@@ -9,9 +9,15 @@ import (
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	// "golang.org/x/text/date"
-	// "golang.org/x/tools/go/analysis/passes/defers"
 )
+
+type Adjustbook struct {
+	Adjust_id      int    `json:"adjust_id"`
+	Adjust_date    string `json:"adjust_date"`
+	Adjust_title   string `json:"adjust_title"`
+	Adjust_isbn    string `json:"adjust_isbn"`
+	Adjust_content string `json:"adjust_content"`
+}
 
 func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
@@ -395,6 +401,47 @@ func ViewSearchBookHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func ViewOnlyBookHandler(w http.ResponseWriter, r *http.Request) {
+func ViewAdjustBookHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		tmpl, err := template.ParseFiles("html/view-adjustbook.html")
+		if err != nil {
+			fmt.Printf("解析模板失败: %v\n", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		}
+		err = tmpl.ExecuteTemplate(w, "view-adjustbook.html", nil)
+		if err != nil {
+			fmt.Printf("执行模板失败: %v\n", err)
+			errorLog.Println("服务器错误：", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+		}
+	}
 
+	if r.Method == http.MethodPost {
+		rows, err := db.Query("SELECT * FROM adjust_books")
+		if err != nil {
+			errorLog.Println("数据库错误", err)
+			return
+		}
+		defer rows.Close()
+
+		var adjusts []Adjustbook
+		for rows.Next() {
+			var adjust Adjustbook
+			err = rows.Scan(&adjust.Adjust_id, &adjust.Adjust_date, &adjust.Adjust_title, &adjust.Adjust_isbn, &adjust.Adjust_content)
+			if err != nil {
+				errorLog.Println("数据库错误：", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			adjusts = append(adjusts, adjust)
+		}
+		w.Header().Set("Content-Type", "application/json")
+		err = json.NewEncoder(w).Encode(adjusts)
+		if err != nil {
+			errorLog.Println("编码错误：", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+	}
 }

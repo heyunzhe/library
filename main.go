@@ -40,6 +40,8 @@ func main() {
 	http.HandleFunc("/lend/records", mode.AdminAuthMiddleware(mode.ViewLendRecords))
 	http.HandleFunc("/return/records", mode.AdminAuthMiddleware(mode.ViewReturnRecords))
 	http.HandleFunc("/search/book", mode.ViewSearchBookHandler)
+	http.HandleFunc("/adjust/book", mode.AdjustBookHandler)
+	http.HandleFunc("/view/adjust", mode.ViewAdjustBookHandler)
 
 	fs := http.FileServer(http.Dir("./"))
 	http.Handle("/css/", fs)
@@ -49,7 +51,7 @@ func main() {
 	http.Handle("/userphoto/", fs)
 
 	fmt.Println("服务器在 http://localhost:8080 上运行")
-	fmt.Println("服务器在 http://10.1.10.117:8080 上运行")
+	fmt.Println("服务器在 http://10.1.10.118:8080 上运行")
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
