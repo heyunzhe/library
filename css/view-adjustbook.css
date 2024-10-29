@@ -1,0 +1,163 @@
+body {
+    background: url("../images/home5.jpg");
+    background-size: cover;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+
+.nav{
+    width: 100%;
+    height: 50px;
+    /* background-color: red; */
+}
+
+.box2{
+    width: 80%;
+    height: 60px;
+    color: white;
+    background-color: rgb(168, 173, 171);
+    opacity: 0.9;
+    border-radius: 5px;
+    position: absolute;
+    top: 90px;
+    left: 10%;
+    
+}
+
+.ul1 {
+    list-style-type: none;  
+    display: flex; 
+    justify-content: space-evenly;
+    padding: 0; 
+    font-weight: bold;
+}
+
+li {
+    margin-right: 20px; 
+    font-size: 18px;
+}
+
+a{
+    text-decoration: none;
+    color: black;
+
+}
+
+a:hover{
+    color: rgb(18, 163, 235);
+}
+
+
+
+.container {
+    width: 100%;
+    margin: auto;
+    overflow: hidden; 
+}
+
+
+h1 {
+    text-align: center;
+    color: #000000;
+}
+
+.adjust-list {
+    width: 80%;
+    background: #dfdfdff7;
+    border-radius: 5px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+    left: 10%;
+}
+
+.adjust-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.adjust-item:last-child {
+    border-bottom: none;
+}
+
+.adjust-date {
+    flex: 1;
+    color: #666;
+}
+
+.adjust-title {
+    flex: 5;
+    color: #3b3b3b;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.adjust-title:hover {
+    color: #4a82be;
+}
+
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    border-radius: 5px;
+}
+
+.library{
+    position: relative;
+    left: 80%;
+}
+
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover,
+.close:focus {
+    color: #000;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#modal-title {
+    margin-top: 0;
+    color: #333;
+    position: relative;
+    left: 26%;
+    width: 400px;
+}
+
+#modal-body{
+    text-indent: 2em;
+    /* width: 400px; */
+    word-break: break-all;
+    word-wrap: break-word;
+}
+
+#modal-content {
+    line-height: 1.8;
+}
