@@ -43,6 +43,8 @@ func main() {
 	http.HandleFunc("/adjust/book", mode.AdjustBookHandler)
 	http.HandleFunc("/view/adjust", mode.ViewAdjustBookHandler)
 
+	http.HandleFunc("/class/search", mode.ClassifySearchHandler)
+
 	fs := http.FileServer(http.Dir("./"))
 	http.Handle("/css/", fs)
 	http.Handle("/js/", fs)
