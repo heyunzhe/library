@@ -80,27 +80,6 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		if id == 1 {
 			if book.Cur_Lend_amount > 0 {
-				_, err := db.Exec("UPDATE all_books set cur_lend_amount = cur_lend_amount -1 WHERE isbn = ?", isbn)
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				_, err = db.Exec("UPDATE library_summary set total_lend_amount = total_lend_amount -1 , total_return_amount = total_return_amount +1")
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				_, err = db.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount + 1 , user_his_lend_amount = user_his_lend_amount +1 WHERE username = ?", user)
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
 				currentTime := time.Now()
 				now := currentTime.Format("2006-01-02")
 				exp_return_date := r.FormValue("exp_return_date")
@@ -124,6 +103,26 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 				} else {
 					errorLog.Println("日期设置错误")
 					w.WriteHeader(http.StatusBadRequest)
+					return
+				}
+				_, err = db.Exec("UPDATE all_books set cur_lend_amount = cur_lend_amount -1 WHERE isbn = ?", isbn)
+				if err != nil {
+					errorLog.Println("数据库错误：", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				_, err = db.Exec("UPDATE library_summary set total_lend_amount = total_lend_amount -1 , total_return_amount = total_return_amount +1")
+				if err != nil {
+					errorLog.Println("数据库错误：", err)
+					w.WriteHeader(http.StatusInternalServerError)
+					return
+				}
+
+				_, err = db.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount + 1 , user_his_lend_amount = user_his_lend_amount +1 WHERE username = ?", user)
+				if err != nil {
+					errorLog.Println("数据库错误：", err)
+					w.WriteHeader(http.StatusInternalServerError)
 					return
 				}
 

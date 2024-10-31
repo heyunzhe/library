@@ -2,63 +2,106 @@ let currentPage = 1;
 const booksPerPage = 5;
 let allBooks = [];
 
+let selectedValues = {
+    value: null,
+    value1: null,
+    value2: null,
+    value3: null
+};
 
 document.addEventListener('DOMContentLoaded', function() {
     // 为所有分类链接添加点击事件监听器
     document.querySelectorAll('.box7 a, .box8 a, .box9 a, .box10 a').forEach(link => {
         link.addEventListener('click', function(e) {
-            e.preventDefault(); // 阻止默认的链接行为
+            e.preventDefault();
             
-            let category, value;
+            let category;
             if (this.closest('.box7')) {
-                category = '作者';
+                category = 'value';
             } else if (this.closest('.box8')) {
-                category = '出版社';
-            }else if (this.closest('.box9')) {
-                category = '类型';
-            }else if (this.closest('.box10')) {
-                category = '出版日期';
+                category = 'value1';
+            } else if (this.closest('.box9')) {
+                category = 'value2';
+            } else if (this.closest('.box10')) {
+                category = 'value3';
             }
-            value = this.textContent;
+            
+            selectedValues[category] = this.textContent;
 
-            const select = document.getElementById('select');
-            select.innerHTML = `${value}`
+            updateSelectDisplay();
 
-            // 创建 FormData 对象
             const formData = new FormData();
-            formData.append('category', category);
-            formData.append('value', value);
+            for (let key in selectedValues) {
+                if (selectedValues[key]) {
+                    formData.append(key, selectedValues[key]);
+                }
+            }
 
-
-            // 发送请求到服务器
-            fetch('/lend/book', {
+            fetch('/class/search', {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then(data => {
+                if (!Array.isArray(data)) {
+                    throw new Error('Server did not return an array');
+                }
+                console.log('Received data:', data);
                 allBooks = data;
-                currentPage = 1; // 重置到第一页
+                currentPage = 1;
                 displayBooks();
                 setupPagination();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => {
+                console.error('Error:', error);
+                allBooks = [];
+                displayBooks();
+                setupPagination();
+            });
         });
     });
+    
+    // 检查URL参数并执行搜索（如果有参数）
+    const urlParams = new URLSearchParams(window.location.search);
+    const selsearch = urlParams.get('selsearch');
+    const inpsearch = urlParams.get('inpsearch');
+    if (selsearch && inpsearch) {
+        searchBooks(selsearch, inpsearch);
+    } else {
+        // 如果没有搜索参数，则加载所有书籍
+        fetchBooks();
+    }
 
-    // 初始加载所有书籍
-    fetchBooks();
+    // 添加搜索表单的事件监听器
+    const searchForm = document.querySelector('form[action="/search/book"]');
+    searchForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(this);
+        const selsearch = formData.get('selsearch');
+        const inpsearch = formData.get('inpsearch');
+        searchBooks(selsearch, inpsearch);
+    });
 });
 
+function updateSelectDisplay() {
+    const select = document.getElementById('select');
+    select.innerHTML = Object.values(selectedValues).filter(Boolean).join(' ');
+}
+
 function fetchBooks() {
-    fetch('/lend/book', {
-        method: 'POST',
+    fetch('/search/book', {
         headers: {
-            'Content-Type': 'application/json',
-        },
+            'Accept': 'application/json'
+        }
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Fetched all books:', data);
         allBooks = data;
         displayBooks();
         setupPagination();
@@ -66,20 +109,16 @@ function fetchBooks() {
     .catch(error => console.error('Error:', error));
 }
 
-const searchForm = document.querySelector('form[action="/search/book"]');
-searchForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    const formData = new FormData(this);
-    searchBooks(formData);
-});
-
-function searchBooks(formData) {
-    fetch('/search/book', {
-        method: 'POST',
-        body: formData
+function searchBooks(selsearch, inpsearch) {
+    const url = `/search/book?selsearch=${encodeURIComponent(selsearch)}&inpsearch=${encodeURIComponent(inpsearch)}`;
+    fetch(url, {
+        headers: {
+            'Accept': 'application/json'
+        }
     })
     .then(response => response.json())
     .then(data => {
+        console.log('Search results:', data);
         allBooks = data;
         currentPage = 1; // 重置到第一页
         displayBooks();
@@ -88,10 +127,14 @@ function searchBooks(formData) {
     .catch(error => console.error('Error:', error));
 }
 
-
 function displayBooks() {
     const bookContainer = document.querySelector('.box13');
     bookContainer.innerHTML = '';
+
+    if (!allBooks || allBooks.length === 0) {
+        bookContainer.innerHTML = '<p>没有找到匹配的书籍。</p>';
+        return;
+    }
 
     const start = (currentPage - 1) * booksPerPage;
     const end = start + booksPerPage;
@@ -169,7 +212,3 @@ function setupPagination() {
     });
     paginationContainer.appendChild(nextButton);
 }
-
-document.addEventListener('DOMContentLoaded', fetchBooks);
-
-
