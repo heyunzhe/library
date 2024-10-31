@@ -92,7 +92,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     replyModal.style.display = 'none';
                     replyForm.reset();
                     fetchOpinions(''); // 重新加载所有意见
-                } else {
+                } else if (response.status === 400){
+                    alert("请当天回复")
+            }else {
                     throw new Error('回复提交失败');
                 }
             })

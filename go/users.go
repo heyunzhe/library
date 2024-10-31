@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"text/template"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -244,19 +245,34 @@ func ViewUserOpinionHandler(w http.ResponseWriter, r *http.Request) {
 func ReplayUserOpinionHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		mu.Lock()
+		defer mu.Unlock()
 		replay_name := r.FormValue("replay_name")
 		replay_date := r.FormValue("replay_date")
 		replay_idea := r.FormValue("replay_idea")
 		replay_user := r.FormValue("replay_user")
 
-		_, err := db.Exec("INSERT INTO replay_opinions (replay_name,replay_date,replay_idea,replay_user) values(?,?,?,?)", replay_name, replay_date, replay_idea, replay_user)
+		nowreplaydate, err := time.Parse("2006-01-02", replay_date) // 确保格式与数据库中的一致
 		if err != nil {
-			errorLog.Println("数据库错误：", err)
+			errorLog.Println("解析日期错误:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
-		mu.Unlock()
+
+		now := time.Now().Truncate(24 * time.Hour)
+
+		day := nowreplaydate.Sub(now.Truncate(24*time.Hour)).Hours() / 24
+
+		if day == 0 {
+			_, err = db.Exec("INSERT INTO replay_opinions (replay_name,replay_date,replay_idea,replay_user) values(?,?,?,?)", replay_name, replay_date, replay_idea, replay_user)
+			if err != nil {
+				errorLog.Println("数据库错误：", err)
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+		}
 	}
 }
 
