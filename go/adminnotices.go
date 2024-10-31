@@ -198,7 +198,9 @@ func UpdateNoticeHandler(w http.ResponseWriter, r *http.Request) {
 
 		now := time.Now().Truncate(24 * time.Hour)
 		// 计算两个日期之间的差值
-		day := nownoticedate.Sub(hisnoticedate.Truncate(24*time.Hour)).Hours() / 24
+		// day := nownoticedate.Sub(hisnoticedate.Truncate(24*time.Hour)).Hours() / 24
+
+		day := nownoticedate.Sub(now.Truncate(24*time.Hour)).Hours() / 24
 
 		day2 := hisnoticedate.Sub(now.Truncate(24*time.Hour)).Hours() / 24
 
