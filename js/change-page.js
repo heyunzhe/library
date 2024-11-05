@@ -9,6 +9,9 @@ let selectedValues = {
     value3: null
 };
 
+
+
+
 document.addEventListener('DOMContentLoaded', function() {
     // 为所有分类链接添加点击事件监听器
     document.querySelectorAll('.box7 a, .box8 a, .box9 a, .box10 a').forEach(link => {
@@ -25,8 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } else if (this.closest('.box10')) {
                 category = 'value3';
             }
-            
-            selectedValues[category] = this.textContent;
+            if (selectedValues[category] === this.textContent){
+                selectedValues[category] = null;
+            }else{
+                selectedValues[category] = this.textContent;
+            }
+
 
             updateSelectDisplay();
 
