@@ -415,6 +415,7 @@ func ClassifySearchHandler(w http.ResponseWriter, r *http.Request) {
 		value := r.FormValue("value")
 		value1 := r.FormValue("value1")
 		value2 := r.FormValue("value2")
+		value4 := r.FormValue("value4")
 		date := r.FormValue("value3")
 
 		value3 := "%" + date + "%"
@@ -438,6 +439,12 @@ func ClassifySearchHandler(w http.ResponseWriter, r *http.Request) {
 		if value3 != "" {
 			query += " AND press_date LIKE ?"
 			params = append(params, value3)
+		}
+		var a int
+		if value4 != "" {
+			a = 1
+			query += " AND rec_state = ?"
+			params = append(params, a)
 		}
 
 		// 执行查询

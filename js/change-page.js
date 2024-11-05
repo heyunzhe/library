@@ -14,7 +14,7 @@ let selectedValues = {
 
 document.addEventListener('DOMContentLoaded', function() {
     // 为所有分类链接添加点击事件监听器
-    document.querySelectorAll('.box7 a, .box8 a, .box9 a, .box10 a').forEach(link => {
+    document.querySelectorAll('.box7 a, .box8 a, .box9 a, .box10 a, .box11 a').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
@@ -27,7 +27,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 category = 'value2';
             } else if (this.closest('.box10')) {
                 category = 'value3';
+            } else if (this.closest(`.box11`)) {
+                category = 'value4';
             }
+
             if (selectedValues[category] === this.textContent){
                 selectedValues[category] = null;
             }else{
