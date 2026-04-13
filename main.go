@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"librarys/go"
 	"log"
 	"net/http"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func main() {
@@ -25,6 +26,7 @@ func main() {
 
 	http.HandleFunc("/admin", mode.AdminHandler)                                   //登录后台
 	http.HandleFunc("/index", mode.IndexHandler)                                   //进入首页
+	http.HandleFunc("/", mode.IndexHandler)                                        //进入首页
 	http.HandleFunc("/lend/book", mode.LendBookHandler)                            //进入借书界面
 	http.HandleFunc("/about", mode.AboutHandler)                                   //进入关于我们
 	http.HandleFunc("/add/useropi", mode.AddUserOpinionHandler)                    //用户上传意见

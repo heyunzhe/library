@@ -402,11 +402,12 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	session, _ := store.Get(r, "user-session")
 	user, ok := session.Values["username"].(string)
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, "未登录", http.StatusUnauthorized)
 		return
 	}
 
 	mu.Lock()
+	defer mu.Unlock() // ✅ 永远释放锁
 
 	tx, err := db.Begin()
 	if err != nil {
@@ -414,11 +415,13 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// ✅ 独立控制事务回滚
 	defer func() {
 		if err != nil {
-			tx.Rollback() // 在出现错误时回滚
+			tx.Rollback()
 		}
 	}()
+
 	name := r.FormValue("name")
 	password := r.FormValue("password")
 	newpassword := r.FormValue("newpassword")
@@ -428,57 +431,61 @@ func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
 	file, _, err := r.FormFile("photo")
 	if err != nil {
 		http.Error(w, "无法获取文件", http.StatusBadRequest)
-		errorLog.Println("无法获取文件", err)
 		return
 	}
 	defer file.Close()
-	filename := "image-" + user + ".jpg"          //文件命名
-	filepath := filepath.Join("images", filename) //保存图片文件
 
-	fileChan := make(chan error)
+	filename := "image-" + user + ".jpg"
+	filepath := filepath.Join("images", filename)
 
-	go func() {
-		outfile, err := os.Create(filepath) //创建文件
-		if err != nil {
-			http.Error(w, "无法创建文件", http.StatusInternalServerError)
-			errorLog.Println("无法创建文件", err)
-			return
-		}
-		defer outfile.Close()
+	// ✅ 不用 goroutine，直接写（简单稳定）
+	outfile, err := os.Create(filepath)
+	if err != nil {
+		http.Error(w, "无法创建文件", http.StatusInternalServerError)
+		return
+	}
+	defer outfile.Close()
 
-		_, err = io.Copy(outfile, file)
-		if err != nil {
-			http.Error(w, "无法保存文件", http.StatusInternalServerError)
-			errorLog.Println("无法保存文件", err)
-			return
-		}
-		fileChan <- err
-	}()
+	_, err = io.Copy(outfile, file)
+	if err != nil {
+		http.Error(w, "无法保存文件", http.StatusInternalServerError)
+		return
+	}
+
 	var oldpassword string
 	err = tx.QueryRow("SELECT password FROM users WHERE username = ?", user).Scan(&oldpassword)
 	if err != nil {
-		errorLog.Println("数据库错误", err)
+		http.Error(w, "数据库错误", http.StatusInternalServerError)
 		return
 	}
-	if password == "" {
-		_, err = tx.Exec("UPDATE users SET name = ? , age = ? , birthday = ? , photo = ? WHERE username = ?", name, age, birthday, filepath, user)
-		if err != nil {
-			errorLog.Println("数据库错误", err)
-			return
-		}
-	} else if password != "" && password == oldpassword && password != newpassword {
-		_, err = tx.Exec("UPDATE users SET name = ? , password = ? , age = ? , birthday = ? , photo = ? WHERE username = ?", name, newpassword, age, birthday, filepath, user)
-		if err != nil {
-			errorLog.Println("数据库错误", err)
-			return
-		}
 
-	}
-	if err = tx.Commit(); err != nil {
-		http.Error(w, "服务器错误", http.StatusInternalServerError)
+	if password == "" {
+		_, err = tx.Exec("UPDATE users SET name=?, age=?, birthday=?, photo=? WHERE username=?",
+			name, age, birthday, filepath, user)
+		if err != nil {
+			http.Error(w, "更新失败", http.StatusInternalServerError)
+			return
+		}
+	} else if password == oldpassword && password != newpassword {
+		_, err = tx.Exec("UPDATE users SET name=?, password=?, age=?, birthday=?, photo=? WHERE username=?",
+			name, newpassword, age, birthday, filepath, user)
+		if err != nil {
+			http.Error(w, "更新失败", http.StatusInternalServerError)
+			return
+		}
+	} else {
+		http.Error(w, "密码错误", http.StatusBadRequest)
 		return
 	}
-	mu.Unlock()
+
+	err = tx.Commit()
+	if err != nil {
+		http.Error(w, "提交失败", http.StatusInternalServerError)
+		return
+	}
+
+	// ✅ 一定要返回响应
+	w.Write([]byte("更新成功"))
 }
 
 // 重置用户密码

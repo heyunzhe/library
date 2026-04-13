@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
-    background: url(../images/home5.jpg);
+    background: url(/images/home5.jpg);
     background-size: 100% 100%;
 }
 

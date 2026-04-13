@@ -20,7 +20,7 @@ func Init() {
 	//日志文件格式
 	errorLog = log.New(logfile, "错误是：", log.Ldate|log.Ltime|log.Lshortfile)
 	//打开数据库
-	db, err = sql.Open("sqlite3", "library.db")
+	db, err = sql.Open("sqlite3", "data/library.db")
 	if err != nil {
 		log.Fatal(err)
 	}
