@@ -110,6 +110,7 @@ func main() {
 	http.Handle("/userphoto/", fs)
 
 	fmt.Println("http://localhost:8080")
+	fmt.Println("服务在8080端口运行")
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
