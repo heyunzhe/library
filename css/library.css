@@ -6,8 +6,7 @@ body{
     width: 100%;
     height: 850px;
     border-radius: 5px 0px 0px 0px;
-    background-color: rgba(255, 0, 0, 0.256);
-    background: url("../images/home.jpg");
+    background-color: #f5f5f5;
     background-size: 100% 100%;
 }
 
@@ -102,7 +101,7 @@ li {
 }
 
 .box4{
-    /* background: url("../images/1.png"); */
+    /* background: url("/images/1.png"); */
     /* background-size: contain; */
     width: 25%;
     height: 50px;
@@ -116,7 +115,7 @@ li {
 }
 
 .active {
-    background:url(../images/1.png) ; /* 选中状态的背景色 */
+    /* 选中状态背景，由 JS 控制 */
 }
 
 .box5{
@@ -134,8 +133,6 @@ li {
 .box6{
     width: 75%;
     height: 160px;
-    /* background-color: red; */
-    background: url("../images/1.png");
     background-size:cover;
     position: absolute;
     right: 0;
@@ -211,10 +208,8 @@ select{
     display: flex;
     width: 100%;
     height: 760px;
-    /* background-color: red; */
-    background: url("../images/home5.jpg");
     background-size: cover;
-    
+
 }
 
 .notice_title{
@@ -331,7 +326,6 @@ select{
     width: 100%;
     height: 380px;
     background-color: rgba(255, 0, 0, 0.483);
-    background: url("../images/cover.jpg");
     background-size: 100% 100%;
     position: absolute;
     top: 1610px;
@@ -635,3 +629,117 @@ h3{
 #userOpiForm button:hover {
     background-color: #45a049;
 }
+
+/* ========== 响应式布局 - 手机优先 ========== */
+@media (max-width: 900px) {
+    .fbox { height: auto; min-height: 420px; padding-bottom: 160px; }
+    .box1 { height: 44px; }
+    .logo1 { width: 100px; left: 3%; }
+    .user { right: 4%; font-size: 13px; }
+    .box2 { width: 94%; left: 3%; top: 56px; height: 44px; }
+    .box2-1 { width: 44%; height: 44px; line-height: 44px; font-size: 15px; }
+    #sousuo { left: 8px; font-size: 16px; }
+    .ul1 { justify-content: flex-start; gap: 6px; }
+    .ul1 li { margin-right: 0; font-size: 13px; }
+    .ul1 li:first-child { display: none; }
+    .box3 { width: 94%; left: 3%; top: 100px; height: 130px; }
+    .box4, .box5 { width: 45%; font-size: 14px; position: absolute; left: 2%; }
+    .box4 { top: 8px; }
+    .box5 { top: 64px; }
+    .box6 { width: 60%; height: 130px; }
+    .box6-1 { font-size: 14px; }
+    .box7 { width: 36%; top: 38px; }
+    select { width: 72px; height: 34px; font-size: 14px; }
+    .box8 { width: 64%; top: 46px; left: 28%; }
+    .search { height: 34px; font-size: 13px; }
+    .box9 { width: 28%; height: 34px; top: 46px; left: 72%; font-size: 13px; }
+
+    /* 中部内容区：解除绝对定位，垂直堆叠 */
+    .fbox1 { height: auto; flex-direction: column; align-items: center; padding: 16px 0; }
+    .box10, .box11, .box12, .box13 {
+        position: static !important;
+        width: 92%;
+        max-width: 500px;
+        margin: 10px auto;
+        height: auto;
+        min-height: unset;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+    .box10, .box11, .box12, .box13 { left: auto; top: auto; }
+    .box11 { min-height: unset; }
+    .box12 { min-height: unset; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px; }
+    .box12 .notice_title { width: 100%; }
+    .rec, .rec1 { width: 42%; height: auto; position: static; display: inline-block; }
+    .more1 { position: static; display: block; text-align: right; width: 100%; }
+
+    .fbox2 {
+        position: static !important;
+        top: auto;
+        height: auto;
+        flex-wrap: wrap;
+        padding: 70px 8px 20px;
+        gap: 12px;
+        justify-content: center;
+        box-sizing: border-box;
+    }
+    .box15 { width: 92%; top: 44px; }
+    .rec_book { width: 36%; left: 5%; height: 26px; line-height: 26px; font-size: 15px; }
+    .new_book { width: 36%; left: 44%; height: 26px; line-height: 26px; font-size: 15px; }
+    .more2 { right: 5%; top: 10px; font-size: 13px; }
+    .box16, .box17, .box18, .box19, .box20 { width: 28%; min-width: 90px; height: auto; top: 0; }
+    .book { width: 72px; height: 108px; }
+    .box16 .title, .box17 .title, .box18 .title, .box19 .title, .box20 .title { font-size: 13px; }
+    .box16 .author, .box17 .author, .box18 .author, .box19 .author, .box20 .author { font-size: 11px; }
+
+    .fbox3 {
+        position: static !important;
+        top: auto;
+        height: auto;
+        flex-wrap: wrap;
+        padding: 20px 12px;
+        gap: 16px;
+    }
+    .box21, .box22, .box23, .box24 { margin: 0; max-width: 44%; min-width: 130px; }
+    .box24 { width: 100%; max-width: 100%; text-align: center; }
+    .end-logo { left: 0; width: 160px; }
+    .box24-1, .box24-2, .box24-3 { position: static; display: inline-block; margin: 8px 12px; }
+    .box25 { position: static; text-align: center; width: 100%; padding: 6px 0; }
+    .box26 { position: static; text-align: center; width: 100%; padding: 2px 0 12px; }
+
+    .box14 { width: 52px; height: 240px; font-size: 11px; }
+    #change, #wodet, #jinqi, #yijian { font-size: 24px; }
+
+    .modal-content { width: 90%; max-width: 320px; margin: 25% auto; }
+    .modal-content2 { width: 92%; top: 0; margin: 15% auto; }
+}
+
+@media (max-width: 480px) {
+    .fbox { min-height: 360px; padding-bottom: 120px; }
+    .logo1 { width: 80px; }
+    .box2 { top: 50px; height: 40px; }
+    .box2-1 { width: 48%; height: 40px; line-height: 40px; font-size: 13px; }
+    .ul1 li { font-size: 12px; }
+    .box3 { top: 90px; height: 120px; }
+    .box4, .box5 { font-size: 12px; }
+    .box6 { width: 58%; }
+    .box6-1 { font-size: 12px; }
+    .box7 { top: 34px; }
+    select { width: 64px; height: 30px; font-size: 12px; }
+    .box8 { height: 30px; top: 42px; left: 30%; }
+    .search { height: 30px; font-size: 12px; }
+    .box9 { height: 30px; top: 42px; font-size: 12px; }
+
+    .box10, .box11, .box12, .box13 { width: 96%; padding: 10px; }
+    .rec, .rec1 { width: 40%; }
+
+    .box16, .box17, .box18, .box19, .box20 { width: 44%; min-width: 80px; }
+    .book { width: 64px; height: 96px; }
+    .rec_book { width: 40%; font-size: 13px; }
+    .new_book { width: 40%; font-size: 13px; }
+
+    .box21, .box22, .box23 { max-width: 100%; min-width: unset; }
+    .box14 { width: 44px; height: 200px; right: 4px; }
+    #change, #wodet, #jinqi, #yijian { font-size: 20px; }
+    .modal-content { width: 94%; margin: 20% auto; }
+

@@ -1,338 +1,108 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>线上借阅</title>
-    <link rel="stylesheet" href="../css/lend-book-list.css">
+    <link rel="stylesheet" href="/css/lend-book-list.css">
 </head>
 <body>
-    <div class="fbox">
-        <div class="logo"><img src="../images/logo.png" alt=""></div>
-        <div class="box1">
-            <form action="/search/book" method="get">
-                <select name="selsearch" id="">
-                    <option value="1">任意词</option>
-                    <option value="2">书名</option>
-                    <option value="3">作者</option>
-                    <option value="4">ISBN</option>
-                </select>
+    <!-- 顶部导航 -->
+    <div class="top-bar">
+        <div class="top-inner">
+            <div class="logo">
+                <a href="/index"><img src="/images/logo.png" alt=""></a>
             </div>
-            <div class="box2">
-                <input type="text" name="inpsearch" id="" placeholder="书名/作者">
+            <div class="search-area">
+                <form action="/search/book" method="get" id="searchForm">
+                    <select name="selsearch">
+                        <option value="1">任意词</option>
+                        <option value="2">书名</option>
+                        <option value="3">作者</option>
+                        <option value="4">ISBN</option>
+                    </select>
+                    <input type="text" name="inpsearch" placeholder="搜索图书...">
+                    <button type="submit">搜索</button>
+                </form>
             </div>
-            <div class="box3">
-                <button>搜索</button>
+            <div class="top-links">
+                <a href="/index">首页</a>
+                <a href="#" id="myBookshelf">📚 借书架<span id="bookCount">（0）</span></a>
+                <a href="/login" id="authButton">登录</a>
             </div>
-        </form>
-        <div class="box4">
-            <a href="#"  id="myBookshelf">我的借书架<span id="bookCount">（0）</span></a>
         </div>
-
-        <div id="count"></div>
-
-        <div class="box5">
-            <a href="/index">首页</a>
-        </div>
-
-        <div class="box6">
-            <a href="/login" id="authButton">登录</a>
-        </div>
-
     </div>
 
-       <div class="fbox1">
-        <ul>
-            <li>已选条件：</li>
-            <li class="select" id="select"></li>
-            <!-- <li class="end" id="clear"><a href="">清空</a></li> -->
-        </ul>
-        <hr class="divider">
-    <div class="box7">
-        <ul>
-            <li>作者：</li>
-            <li><a href="">鲁迅</a></li>
-            <li><a href="">老舍</a></li>
-            <li><a href="">余华</a></li>
-            <li><a href="">莫言</a></li>
-            <li class="end">更多</li>
-        </ul>
-        <hr class="divider">
-    </div>
-
-    <div class="box8">
-        <ul>
-            <li>出版社：</li>
-            <li><a href="">人民邮电出版社</a></li>
-            <li><a href="">清华大学出版社</a></li>
-            <li><a href="">北京大学出版社</a></li>
-            <li><a href="">人民出版社</a></li>
-            <li class="end">更多</li>
-        </ul>
-        <hr class="divider">
-    </div>
-
-    <div class="box9">
-        <ul>
-            <li>类型：</li>
-            <li><a href="">文学类</a></li>
-            <li><a href="">科幻类</a></li>
-            <li><a href="">艺术类</a></li>
-            <li><a href="">历史类</a></li>
-            <li class="end">更多</li>
-        </ul>
-        <hr class="divider">
-    </div>
-
-    <div class="box10">
-        <ul>
-            <li>出版年份：</li>
-            <li><a href="">2024</a></li>
-            <li><a href="">2023</a></li>
-            <li><a href="">2022</a></li>
-            <li><a href="">2021</a></li>
-            <li><a href="">2020</a></li>
-            <li><a href="">2019</a></li>
-            <li class="end">更多</li>
-        </ul>
-        <hr class="divider">
-    </div>
-
-    <div class="box11">
-        <ul>
-            <li>推荐图书：</li>
-            <li><a href="">推荐</a></li>
-        </ul>
-        <hr class="divider">
-    </div>
-</div> <br>
-
-    <div class="fbox2">
-        <div class="box12">
-            <ul>
-                <li class="newbook">新书</li>
-                <li class="more"><a href="">更多</a></li>
-            </ul>
-
-            <div class="box12-1">
-                <img src="../images/image1.jpg" class="new_book">
-                <p>活着</p>
-                <p>可借：2</p>
-                <p>余华</p>
+    <div class="main-wrap">
+        <!-- 筛选侧栏 -->
+        <aside class="filter-sidebar">
+            <div class="filter-section">
+                <div class="filter-title">已选条件</div>
+                <div class="filter-tags" id="select"></div>
             </div>
-
-            <div class="box12-2">
-                <img src="../images/image2.jpg" class="new_book">
-                <p>提问的艺术</p>
-                <p>可借：2</p>
-                <p>[美] 特里.费德姆</p>
-            </div>
-
-            <div class="box12-3">
-                <img src="../images/image3.jpg" class="new_book">
-                <p>狂人日记</p>
-                <p>可借：2</p>
-                <p>鲁迅</p>
-            </div>
-
-            <div class="box12-4">
-                <img src="../images/image4.jpg" class="new_book">
-                <p>钢铁是怎样炼成的</p>
-                <p>可借：2</p>
-                <p>(苏)尼·奥斯特洛夫斯基</p>
-            </div>
-
-            <div class="box12-5">
-                <img src="../images/image5.jpg" class="new_book">
-                <p>骆驼祥子</p>
-                <p>可借：2</p>
-                <p>老舍</p>
-            </div>
-            
-        </div>
-
-        <div class="box13">
-            <div class="box13-1">
-                <img src="../images/image1.jpg" alt="" class="book">
-                <div class="box13-1-1">
-                    <h3><a href="">活着</a></h3>
-                    <ul>
-                        <li>作者：余华</li>
-                        <label for="">ISBN:</label><li class="ISBN">1</li>
-                    </ul>
-                    <ul>
-                        <li>出版年份：2024</li>
-                        <li>出版社：人民出版社</li>
-                    </ul>
-                    <ul>
-                        <li>价格：28</li>
-                        <li>可借数：3</li>
-                    </ul>
-                    <ul>
-                        <li>简介：</li>
-                    </ul>
-                    <div class="intro_style">
-                        <p class="intro">
-                            111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-                        </p>
-
-                    </div>
-                    <div class="lend_book">
-                        <a href="#" id="lend_book">
-                            加入借书架
-                        </a>
-                    </div>
-
+            <div class="filter-section">
+                <div class="filter-title">作者</div>
+                <div class="filter-links" data-category="value">
+                    <a href="#">鲁迅</a><a href="#">老舍</a><a href="#">余华</a><a href="#">莫言</a><a href="#">更多</a>
                 </div>
             </div>
-
-
-             <div class="box13-2">
-                <img src="../images/image2.jpg" alt="" class="book">
-                <div class="box13-2-1">
-                    <h3><a href="">提问的艺术</a></h3>
-                    <ul>
-                        <li>作者：[美] 特里.费德姆</li>
-                        <label for="">ISBN:</label><li class="ISBN">2</li>
-                    </ul>
-                    <ul>
-                        <li>出版年份：2024</li>
-                        <li>出版社：人民出版社</li>
-                    </ul>
-                    <ul>
-                        <li>价格：28</li>
-                        <li>可借数：3</li>
-                    </ul>
-                    <ul>
-                        <li>简介：</li>
-                    </ul>
-                     <div class="intro_style">
-                        <p class="intro">
-                            111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-                        </p>
-                    </div>
-
-                    <div class="lend_book">
-                        <a href="#" id="lend_book">加入借书架</a>
-                    </div>
+            <div class="filter-section">
+                <div class="filter-title">出版社</div>
+                <div class="filter-links" data-category="value1">
+                    <a href="#">人民邮电出版社</a><a href="#">清华大学出版社</a><a href="#">北京大学出版社</a><a href="#">人民出版社</a><a href="#">更多</a>
                 </div>
             </div>
-
-            <div class="box13-3">
-                <img src="../images/image3.jpg" alt="" class="book">
-                <div class="box13-3-1">
-                    <h3><a href="">狂人日记</a></h3>
-                    <ul>
-                        <li>作者：鲁迅</li>
-                        <label for="">ISBN:</label><li class="ISBN">3</li>
-                    </ul>
-                    <ul>
-                        <li>出版年份：2024</li>
-                        <li>出版社：人民出版社</li>
-                    </ul>
-                    <ul>
-                        <li>价格：28</li>
-                        <li>可借数：3</li>
-                    </ul>
-                    <ul>
-                        <li>简介：</li>
-                    </ul>
-                    <div class="intro_style">
-                        <p class="intro">
-                            111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-                        </p>
-                    </div>
-
-                    <div class="lend_book"><a href="#" id="lend_book">加入借书架</a></div>
-
+            <div class="filter-section">
+                <div class="filter-title">类型</div>
+                <div class="filter-links" data-category="value2">
+                    <a href="#">文学类</a><a href="#">科幻类</a><a href="#">艺术类</a><a href="#">历史类</a><a href="#">更多</a>
                 </div>
             </div>
-
-            <div class="box13-4">
-                <img src="../images/image4.jpg" alt="" class="book">
-                <div class="box13-4-1">
-                    <h3><a href="">钢铁是怎样炼成的</a></h3>
-                    <ul>
-                        <li>作者：(苏)尼·奥斯特洛夫斯基</li>
-                        <label for="">ISBN:</label><li class="ISBN">4</li>
-                    </ul>
-                    <ul>
-                        <li>出版年份：2024</li>
-                        <li>出版社：人民出版社</li>
-                    </ul>
-                    <ul>
-                        <li>价格：28</li>
-                        <li>可借数：3</li>
-                    </ul>
-                    <ul>
-                        <li>简介：</li>
-                    </ul>
-                    <div class="intro_style">
-                        <p class="intro">
-                            111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-                        </p>
-                    </div>
-
-                    <div class="lend_book"><a href="#" id="lend_book">加入借书架</a></div>
-
+            <div class="filter-section">
+                <div class="filter-title">出版年份</div>
+                <div class="filter-links" data-category="value3">
+                    <a href="#">2024</a><a href="#">2023</a><a href="#">2022</a><a href="#">2021</a><a href="#">2020</a>
                 </div>
             </div>
-
-            <div class="box13-5">
-                <img src="../images/image5.jpg" alt="" class="book">
-                <div class="box13-5-1">
-                    <h3><a href="">骆驼祥子</a></h3>
-                    <ul>
-                        <li>作者：老舍</li>
-                        <label for="">ISBN:</label><li class="ISBN">5</li>
-                    </ul>
-                    <ul>
-                        <li>出版年份：2024</li>
-                        <li>出版社：人民出版社</li>
-                    </ul>
-                    <ul>
-                        <li>价格：28</li>
-                        <li>可借数：3</li>
-                    </ul>
-                    <ul>
-                        <li>简介：</li>
-                    </ul>
-                    <div class="intro_style">
-                        <p class="intro">
-                            111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
-                        </p>
-                    </div>
-
-                    <div class="lend_book"><a href="#" id="lend_book">加入借书架</a></div>
-
+            <div class="filter-section">
+                <div class="filter-title">推荐图书</div>
+                <div class="filter-links" data-category="value4">
+                    <a href="#">推荐</a>
                 </div>
             </div>
+        </aside>
 
-
-        </div>
-
-
+        <!-- 图书列表 -->
+        <section class="book-list">
+            <div class="list-header">
+                <span class="list-count" id="resultCount">共 0 本</span>
+                <span class="refresh-status" id="refreshStatus">● 实时</span>
+            </div>
+            <div class="book-grid" id="bookContainer">
+                <!-- JS动态渲染 -->
+            </div>
+            <div class="pagination" id="pagination"></div>
+        </section>
     </div>
+
+    <!-- 借书架弹窗 -->
     <div id="bookshelfModal" class="modal">
-                <div class="modal-content">
-                    <span class="close">&times;</span>
-                    <h2>我的借书架</h2>
-                    
-                    <div id="borrowedBooks">
-                        <!-- 借阅的书籍将在这里显示 -->
-                    </div>
-                </div>
-            </form>
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>📚 我的借书架</h2>
+            <div id="borrowedBooks"></div>
         </div>
+    </div>
 
-        <div id="pagination">
-
-            
+    <!-- 图书详情弹窗 -->
+    <div id="bookDetailModal" class="modal">
+        <div class="modal-content" style="max-width:640px">
+            <span class="close" id="closeDetail">&times;</span>
+            <div id="bookDetailBody"></div>
         </div>
+    </div>
 
-    <script src="../js/lend-book-list.js"></script>
-    <script src="../js/change-page.js"></script>
-
-    
+    <script src="/js/lend-book-list.js"></script>
+    <script src="/js/change-page.js"></script>
 </body>
 </html>

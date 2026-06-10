@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - 在线阅读</title>
+    <link rel="stylesheet" href="/css/read-book.css">
+</head>
+<body>
+    <nav class="reader-nav">
+        <div class="nav-inner">
+            <a href="/user/library" class="back-link">← 返回个人中心</a>
+            <span class="nav-title">{{.Title}}</span>
+            <span class="nav-author">{{.Author}}</span>
+        </div>
+    </nav>
+
+    <div class="reader-content">
+        <h1 class="book-title">{{.Title}}</h1>
+        <p class="book-author">作者：{{.Author}}　ISBN：{{.Isbn}}</p>
+        {{if .Intro}}
+        <div class="book-intro">
+            <h3>内容简介</h3>
+            <p>{{.Intro}}</p>
+        </div>
+        {{end}}
+        <hr class="divider">
+        <div class="book-body">
+            {{.Content}}
+        </div>
+    </div>
+</body>
+</html>

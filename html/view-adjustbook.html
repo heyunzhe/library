@@ -3,44 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>图书调整信息</title>
-    <link rel="stylesheet" href="../css/view-adjustbook.css">
+    <title>近期调整</title>
+    <link rel="stylesheet" href="/css/view-adjustbook.css">
 </head>
 <body>
-    <div class="container">
-        <h1>图书调整信息</h1>
-        
-        <div class="nav">
-            <div class="box2">
-                <ul class="ul1">
-                    <li><a href="/index">首页</a></li>
-                    <li><a href="/lend/book">借阅图书</a></li>
-                    <li><a href="/ranking">借阅排行榜</a></li>
-                    <li><a href="/view/adjust">近期调整</a></li>
-                    <li><a href="/about">关于我们</a></li>
-                </ul>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/index" class="nav-brand">📚 图书馆</a>
+            <div class="nav-links">
+                <a href="/index">首页</a>
+                <a href="/lend/book">借阅图书</a>
+                <a href="/ranking">排行榜</a>
+                <a href="/view/adjust" class="active">近期调整</a>
+                <a href="/about">关于我们</a>
+                <a href="/login" id="authButton">登录</a>
             </div>
         </div>
-    <hr>
-</div>
-        <div id="adjust-list" class="adjust-list">
-            <!-- 调整信息将通过JavaScript动态添加 -->
-        </div>
-    
+    </nav>
 
+    <div class="page-hero">
+        <h1>📋 近期调整</h1>
+        <p>图书调整信息公告</p>
+    </div>
+
+    <div class="container">
+        <div class="timeline" id="adjustList"></div>
+    </div>
+
+    <!-- 详情弹窗 -->
     <div id="modal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2 id="modal-title"></h2>
-            <div id="modal-content">
-                <p>尊敬的读者：</p>
-                <p id="modal-body"></p>
-                <p class="library">智慧图书馆</p>
-                <p></p>
-            </div>
+            <h2 id="modalTitle"></h2>
+            <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
-    <script src="../js/view-adjustbook.js"></script>
+    <script src="/js/view-adjustbook.js"></script>
 </body>
 </html>

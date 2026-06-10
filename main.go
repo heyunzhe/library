@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"librarys/go"
 	"log"
 	"net/http"
@@ -25,17 +24,23 @@ func main() {
 
 	http.HandleFunc("/admin", mode.AdminHandler)                                   //登录后台
 	http.HandleFunc("/index", mode.IndexHandler)                                   //进入首页
-	http.HandleFunc("/lend/book", mode.LendBookHandler)                            //进入借书界面
+	http.HandleFunc("/", mode.IndexHandler)                                        //进入首页
+	http.HandleFunc("/lend/book", mode.LendBookHandler)                            //借书界面（GET公开，POST需登录）
 	http.HandleFunc("/about", mode.AboutHandler)                                   //进入关于我们
 	http.HandleFunc("/add/useropi", mode.AddUserOpinionHandler)                    //用户上传意见
 	http.HandleFunc("/logout", mode.AdminAuthMiddleware(mode.LogoutHandler))       //管理员退出登录
 	http.HandleFunc("/login", mode.LoginHandler)                                   //用户登录
+	http.HandleFunc("/register", mode.RegisterHandler)                             //用户注册
+	http.HandleFunc("/send/verify", mode.SendVerifyHandler)                        //发送注册验证码
+	http.HandleFunc("/send/reset-code", mode.SendResetCodeHandler)                 //发送重置密码验证码
 	http.HandleFunc("/ulogout", mode.AuthMiddleware(mode.UserLogoutHandler))       //用户退出登录
 	http.HandleFunc("/user/library", mode.AuthMiddleware(mode.UserLibraryHandler)) //进入个人中心界面
-	http.HandleFunc("/update/user", mode.UpdateUserHandler)                        //更新用户信息
+	http.HandleFunc("/update/user", mode.AuthMiddleware(mode.UpdateUserHandler))               //更新用户信息
 	http.HandleFunc("/reset", mode.ResetpasswordHandler)                           //重置用户密码
+	http.HandleFunc("/admin/reset", mode.AdminAuthMiddleware(mode.AdminResetPasswordHandler)) //管理员重置密码
 	http.HandleFunc("/ranking", mode.RankingHandler)                               //目前用于测试接口
-	http.HandleFunc("/return/book", mode.ReturnBookHandler)                        //还书操作
+	http.HandleFunc("/return/book", mode.AuthMiddleware(mode.ReturnBookHandler))                        //还书操作
+	http.HandleFunc("/refresh", mode.RefreshTokenHandler)                          //刷新JWT令牌
 
 	http.HandleFunc("/lend/records", mode.AdminAuthMiddleware(mode.ViewLendRecords))
 	http.HandleFunc("/return/records", mode.AdminAuthMiddleware(mode.ViewReturnRecords))
@@ -44,6 +49,9 @@ func main() {
 	http.HandleFunc("/view/adjust", mode.ViewAdjustBookHandler)
 
 	http.HandleFunc("/class/search", mode.ClassifySearchHandler)
+	// 在线阅读
+	http.HandleFunc("/read/book", mode.AuthMiddleware(mode.ReadBookHandler))
+	http.HandleFunc("/admin/upload/content", mode.AdminAuthMiddleware(mode.UploadContentHandler))
 
 	fs := http.FileServer(http.Dir("./"))
 	http.Handle("/css/", fs)

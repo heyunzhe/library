@@ -4,58 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>图书管理系统后台</title>
-    <link rel="stylesheet" href="../css/admin.css">
-
-
-    
+    <link rel="stylesheet" href="/css/admin.css">
 </head>
-<body >
+<body>
     <div class="container">
         <aside class="sidebar">
-            <div class="logo">图书管理系统</div>
+            <div class="logo">📚 图书馆</div>
             <nav>
                 <ul class="menu">
-                    <li><a href="/add/book">添加图书</a></li>
-                    <li><a href="/view/book">查看/编辑图书</a></li>
-                    <li><a href="/adjust/book">添加图书调整信息</a></li>
-                    <li><a href="/view/user">查询用户信息</a></li>
-                    <li><a href="/add/notice">添加公告</a></li>
-                    <li><a href="/view/notice">查询/编辑公告</a></li>
-                    <li><a href="/view/useropi">查询/回复用户意见建议</a></li>
-                    <li><a href="/lend/records">查询借阅记录</a></li>
-                    <li><a href="/return/records">查询归还记录</a></li>
-
-                    <li><a href="/logout">退出登录</a></li>
-
+                    <li><a href="/admin" class="active">🏠 控制台</a></li>
+                    <li><a href="/view/book">📖 图书管理</a></li>
+                    <li><a href="/add/book">➕ 添加图书</a></li>
+                    <li><a href="/adjust/book">🔧 图书调整</a></li>
+                    <li><a href="/view/user">👥 用户管理</a></li>
+                    <li><a href="/view/notice">📢 公告管理</a></li>
+                    <li><a href="/add/notice">➕ 发布公告</a></li>
+                    <li><a href="/view/useropi">💬 意见反馈</a></li>
+                    <li><a href="/lend/records">📚 借阅记录</a></li>
+                    <li><a href="/return/records">✅ 归还记录</a></li>
+                    <li><a href="/logout" style="color: #f87171;">🚪 退出登录</a></li>
                 </ul>
             </nav>
         </aside>
         <main class="content">
             <header class="header">
-                <h1>后台操作界面</h1>
+                <h1>📊 控制台概览</h1>
             </header>
             <section class="dashboard">
                 <div class="card">
-                    <h2>总图书数量</h2>
-                    <p>{{.Total_books_amount}}</p>
+                    <div class="card-icon blue">📚</div>
+                    <h2>总藏书量</h2>
+                    <p>{{.Total_books_amount}}<small style="font-size: 16px; color: #64748b;">本</small></p>
                 </div>
                 <div class="card">
+                    <div class="card-icon green">👥</div>
                     <h2>用户数量</h2>
-                    <p> {{.Cur_user_amount}} / {{.Total_users_amount}}</p>
-                    <small> 当前在线 / 总用户</small>
+                    <p>{{.Cur_user_amount}}<small style="font-size: 16px; color: #64748b;">人</small></p>
+                    <small style="display: block; margin-top: 4px;">当前在线</small>
                 </div>
                 <div class="card">
-                    <h2>当前可借阅数量</h2>
-                    <p>{{.Total_lend_amount}}</p>
+                    <div class="card-icon orange">📖</div>
+                    <h2>可借数量</h2>
+                    <p>{{.Total_lend_amount}}<small style="font-size: 16px; color: #64748b;">本</small></p>
                 </div>
                 <div class="card">
-                    <h2>当前未归还数量</h2>
-                    <p>{{.Total_return_amount}}</p>
+                    <div class="card-icon purple">✅</div>
+                    <h2>待归数量</h2>
+                    <p>{{.Total_return_amount}}<small style="font-size: 16px; color: #64748b;">本</small></p>
                 </div>
             </section>
         </main>
     </div>
-
-
 </body>
-</html>

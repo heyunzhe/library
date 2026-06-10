@@ -1,35 +1,49 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const rankingList = document.getElementById('ranking-list');
+    const list = document.getElementById('rankingList');
 
-    fetch('/ranking', {
-        method: 'POST'
-    })
-    .then(response => response.json())
+    const token = localStorage.getItem('access_token');
+    const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
+    const options = { method: 'POST', headers: headers };
+    fetch('/ranking', options)
+    .then(r => r.json())
     .then(data => {
-        // 按借阅次数降序排序
         data.sort((a, b) => b.count - a.count);
 
+        if (data.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:40px;color:#95a5a6">暂无借阅数据</div>';
+            return;
+        }
+
         data.forEach((book, index) => {
-            const rankingItem = document.createElement('div');
-            rankingItem.className = 'ranking-item';
-            
             const rankClass = index < 3 ? `rank-${index + 1}` : '';
-            
-            rankingItem.innerHTML = `
+            const coverUrl = book.cover ? '/' + book.cover : '/images/default-avatar.svg';
+
+            const item = document.createElement('div');
+            item.className = 'ranking-item';
+            item.innerHTML = `
                 <div class="rank ${rankClass}">${index + 1}</div>
-                <img src="../images/image${book.isbn}.jpg" alt="${book.title}" class="book-cover">
+                <img src="${coverUrl}" alt="${book.title}" class="book-cover" onerror="this.src='/images/default-avatar.svg'">
                 <div class="book-info">
                     <div class="book-title">${book.title}</div>
-                    <div class="book-isbn">ISBN: ${book.isbn}</div>
-                    <div class="borrow-count">借阅次数: ${book.count}</div>
+                    <div class="book-meta">ISBN: ${book.isbn}</div>
                 </div>
+                <div class="borrow-count">${book.count} <small>次借阅</small></div>
             `;
-            
-            rankingList.appendChild(rankingItem);
+            list.appendChild(item);
         });
     })
-    .catch(error => {
-        console.error('Error:', error);
-        rankingList.innerHTML = '<p>加载排行榜数据时出错，请稍后再试。</p>';
+    .catch(() => {
+        list.innerHTML = '<div style="text-align:center;padding:40px;color:#95a5a6">加载失败，请稍后再试</div>';
     });
+
+    // 认证按钮
+    const btn = document.getElementById('authButton');
+    if (btn) {
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            btn.textContent = '个人中心';
+            btn.href = '/user/library';
+        } else {
+            btn.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
+        }
+    }
 });

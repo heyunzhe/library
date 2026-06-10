@@ -1,47 +1,50 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const adjustList = document.getElementById('adjust-list');
+    const timeline = document.getElementById('adjustList');
     const modal = document.getElementById('modal');
-    const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body');
-    const closeBtn = document.getElementsByClassName('close')[0];
+    const modalTitle = document.getElementById('modalTitle');
+    const modalBody = document.getElementById('modalBody');
+    const closeBtn = document.querySelector('.close');
 
-    // 获取调整信息
-    fetch('/view/adjust', {
-        method: 'POST'
-    })
-    .then(response => response.json())
+    fetch('/view/adjust', { method: 'POST' })
+    .then(r => r.json())
     .then(data => {
-        data.forEach(adjust => {
-            const adjustItem = document.createElement('div');
-            adjustItem.className = 'adjust-item';
-            adjustItem.innerHTML = `
-                <span class="adjust-date">${adjust.adjust_date}</span>
-                <a href="#" class="adjust-title">${adjust.adjust_title}</a>
-            `;
-            adjustList.appendChild(adjustItem);
+        if (!data || data.length === 0) {
+            timeline.innerHTML = '<div class="empty-state"><div class="empty-state-icon">📋</div><p>暂无调整信息</p></div>';
+            return;
+        }
 
-            const titleLink = adjustItem.querySelector('.adjust-title');
-            titleLink.addEventListener('click', function(e) {
-                e.preventDefault();
-                showModal(adjust);
+        data.forEach(adjust => {
+            const item = document.createElement('div');
+            item.className = 'timeline-item';
+            item.innerHTML = `
+                <div class="timeline-date">${adjust.adjust_date}</div>
+                <div class="timeline-title">${adjust.adjust_title}</div>
+                ${adjust.adjust_isbn ? `<span class="timeline-isbn">ISBN: ${adjust.adjust_isbn}</span>` : ''}
+                <div class="timeline-preview">${adjust.adjust_content}</div>
+            `;
+            item.addEventListener('click', () => {
+                modalTitle.textContent = adjust.adjust_title;
+                modalBody.textContent = adjust.adjust_content;
+                modal.classList.add('active');
             });
+            timeline.appendChild(item);
         });
     })
-    .catch(error => console.error('Error:', error));
+    .catch(() => {
+        timeline.innerHTML = '<div class="empty-state"><div class="empty-state-icon">⚠️</div><p>加载失败</p></div>';
+    });
 
-    function showModal(adjust) {
-        modalTitle.textContent = adjust.adjust_title;
-        modalBody.textContent = adjust.adjust_content;
-        modal.style.display = 'block';
-    }
+    closeBtn.onclick = () => modal.classList.remove('active');
+    window.onclick = (e) => { if (e.target === modal) modal.classList.remove('active'); };
 
-    closeBtn.onclick = function() {
-        modal.style.display = 'none';
-    }
-
-    window.onclick = function(event) {
-        if (event.target == modal) {
-            modal.style.display = 'none';
+    // 认证按钮
+    const btn = document.getElementById('authButton');
+    if (btn) {
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            btn.textContent = '个人中心';
+            btn.href = '/user/library';
+        } else {
+            btn.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
         }
     }
 });

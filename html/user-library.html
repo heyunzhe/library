@@ -4,130 +4,189 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>个人中心</title>
-    <link rel="stylesheet" href="../css/user-library.css">
-
+    <link rel="stylesheet" href="/css/user-library.css">
 </head>
 <body>
-    <header class="header">
-        <h1>个人中心</h1>
-        <div class="user-info">
-            <img src="" alt="用户头像" class="user-avatar">
-            <div>
-                <h2 id="user_name"></h2>
-                <p>学生卡号: <span id="student_id"></span></p>
+
+    <!-- 顶部导航 -->
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/index" class="nav-brand">📚 图书馆</a>
+            <div class="nav-links">
+                <a href="/index">首页</a>
+                <a href="/user/library" class="active">个人中心</a>
+                <a href="#" id="logoutLink">退出登录</a>
             </div>
         </div>
-    </header>
+    </nav>
 
-    <button id="editButton">编辑个人信息</button>
+    <!-- 主内容 -->
+    <div class="container">
 
-    <div id="editModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeModal">&times;</span>
-            <h2>编辑个人信息</h2>
-            <form id="editForm">
-                <label for="edit_name">姓名：</label>
-                <input type="text" id="edit_name" name="name" required><br><br>
-                
-                <label for="edit_age">年龄：</label>
-                <input type="number" id="edit_age" name="age" required><br><br>
-                
-                <label for="edit_birthday">生日：</label>
-                <input type="date" id="edit_birthday" name="birthday" required><br><br>
-                
-                <label for="edit_photo">头像：</label>
-                <input type="file" id="edit_photo" name="photo" accept="image/*"><br><br>
-                
-                <div id="passwordFields" style="display: none;">
-                    <label for="edit_password">当前密码：</label>
-                    <input type="password" id="edit_password" name="password"><br><br>
-                    
-                    <label for="edit_newpassword">新密码：</label>
-                    <input type="password" id="edit_newpassword" name="newpassword"><br><br>
+        <!-- 用户信息卡片 -->
+        <div class="profile-card">
+            <div class="profile-cover"></div>
+            <div class="profile-body">
+                <div class="profile-avatar">
+                    <img id="userAvatar" src="/images/default-avatar.svg" alt="">
+                    <div class="avatar-badge" id="editAvatarBtn">📷</div>
                 </div>
-                
-                <button type="submit">确认</button>
-                <button type="button" id="changePasswordBtn">修改密码</button>
-            </form>
-        </div>
-    </div>
-
-    <section class="stats">
-        <div class="stat-card">
-            <h3>借阅统计</h3>
-            <p>当前借阅: <span id="current_borrow"></span></p>
-            <p>历史借阅: <span id="history_borrow"></span></p>
-        </div>
-        <div class="stat-card">
-            <h3>借阅限额</h3>
-            <p>已借阅: <span id="borrow_limit"></span></p>
-        </div>
-    </section>
-
-    <section class="book-list">
-        <h2>当前借阅</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>书名</th>
-                    <th>ISBN</th>
-                    <th>借阅日期</th>
-                    <th>应还日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody id="current_borrow_list">
-                <!-- 当前借阅列表将通过JavaScript动态加载 -->
-            </tbody>
-        </table>
-    </section>
-
-    <section class="book-list">
-        <h2>借阅历史</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>书名</th>
-                    <th>ISBN</th>
-                    <th>借阅日期</th>
-                    <th>归还日期</th>
-                    <th>逾期费用</th>
-                </tr>
-            </thead>
-            <tbody id="borrow_history_list">
-                <!-- 借阅历史列表将通过JavaScript动态加载 -->
-            </tbody>
-        </table>
-    </section>
-
-    <!-- 模态窗口 -->
-<div id="model2" class="modal1" tabindex="-1" role="dialog">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">归还书籍</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="returnForm" method="post" action="/return/book">
-                    <div class="form-group">
-                        <label for="cardKey">请输入卡密</label>
-                        <input type="text" class="form-control" id="cardKey" name="money-key" placeholder="卡密">
+                <div class="profile-info">
+                    <h1 id="userName">--</h1>
+                    <div class="profile-meta">
+                        <span>📧 <span id="userEmail">--</span></span>
+                        <span>🆔 <span id="userId">--</span></span>
+                        <span>📅 <span id="userJoined">--</span></span>
                     </div>
-                        <input type="hidden" id="bookISBN" name="isbn">
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="submitReturn">提交</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>
+                <button class="btn-edit" id="editButton">✏️ 编辑资料</button>
+            </div>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="stat-num" id="statCur">0</span>
+                    <span class="stat-label">当前借阅</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statHis">0</span>
+                    <span class="stat-label">历史借阅</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statLimit">0/5</span>
+                    <span class="stat-label">借阅额度</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-num" id="statAge">0</span>
+                    <span class="stat-label">年龄</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 当前借阅 -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📖 当前借阅</h2>
+                <span class="badge" id="curCount">0 本</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>书名</th><th>ISBN</th><th>借阅日期</th><th>应还日期</th><th>操作</th></tr>
+                    </thead>
+                    <tbody id="currentBorrowList"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 借阅历史 -->
+        <div class="section">
+            <div class="section-header">
+                <h2>📜 借阅历史</h2>
+                <span class="badge" id="hisCount">0 条</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr><th>书名</th><th>ISBN</th><th>借阅日期</th><th>归还日期</th><th>逾期费用</th></tr>
+                    </thead>
+                    <tbody id="borrowHistoryList"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 编辑资料弹窗 -->
+    <div class="modal-overlay hidden" id="editModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>编辑资料</h2>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label>姓名</label>
+                    <input type="text" id="editName" required>
+                </div>
+                <div class="form-group">
+                    <label>邮箱</label>
+                    <input type="email" id="editEmail" readonly class="input-readonly">
+                </div>
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label>生日</label>
+                        <input type="date" id="editBirthday" required>
+                    </div>
+                    <div class="form-group flex-1">
+                        <label>年龄（自动计算）</label>
+                        <input type="number" id="editAge" readonly class="input-readonly">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>头像</label>
+                    <div class="avatar-picker">
+                        <div class="avatar-current">
+                            <img id="editAvatarPreview" src="/images/default-avatar.svg" alt="">
+                        </div>
+                        <div class="avatar-grid" id="avatarGrid">
+                            <div class="avatar-opt selected" data-avatar=""><span>📷</span>上传</div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-1.svg"><img src="/images/avatar-1.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-2.svg"><img src="/images/avatar-2.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-3.svg"><img src="/images/avatar-3.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-4.svg"><img src="/images/avatar-4.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-5.svg"><img src="/images/avatar-5.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-6.svg"><img src="/images/avatar-6.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-7.svg"><img src="/images/avatar-7.svg"></div>
+                            <div class="avatar-opt" data-avatar="/images/avatar-8.svg"><img src="/images/avatar-8.svg"></div>
+                        </div>
+                        <input type="file" id="editPhoto" accept="image/*" style="display:none">
+                        <input type="hidden" id="editAvatarPath" value="">
+                    </div>
+                </div>
+
+                <div class="form-divider"></div>
+
+                <div class="form-group">
+                    <label>当前密码 <span class="hint">（留空不修改密码）</span></label>
+                    <input type="password" id="editPassword" placeholder="输入当前密码">
+                </div>
+                <div class="form-group">
+                    <label>新密码 <span class="hint">（至少6位）</span></label>
+                    <input type="password" id="editNewPassword" placeholder="留空则不修改">
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelEdit">取消</button>
+                    <button type="submit" class="btn-save">保存修改</button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
+    <!-- 归还书籍弹窗 -->
+    <div class="modal-overlay hidden" id="returnModal">
+        <div class="modal-card" style="max-width:400px">
+            <div class="modal-header">
+                <h2>归还书籍</h2>
+                <button class="modal-close" id="closeReturn">&times;</button>
+            </div>
+            <form id="returnForm">
+                <p style="margin-bottom:12px;color:#64748b">确认归还 <strong id="returnBookName"></strong>？</p>
+                <div class="form-group">
+                    <label>请输入卡密</label>
+                    <input type="text" id="cardKey" name="money-key" placeholder="卡密">
+                </div>
+                <input type="hidden" id="bookISBN" name="isbn">
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" id="cancelReturn">取消</button>
+                    <button type="submit" class="btn-save">确认归还</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <script src="../js/user-library.js"></script>
+    <script src="/js/user-library.js"></script>
 </body>
 </html>

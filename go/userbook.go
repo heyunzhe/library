@@ -3,13 +3,8 @@ package mode
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"net/http"
-	"strings"
-	"text/template"
 	"time"
-
-	_ "github.com/mattn/go-sqlite3"
 )
 
 type Adjustbook struct {
@@ -20,295 +15,265 @@ type Adjustbook struct {
 	Adjust_content string `json:"adjust_content"`
 }
 
+// LendBookHandler 处理借书请求（POST）和显示借书页面（GET）
 func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/lend-book-list.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "lend-book-list.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/lend-book-list.html", nil)
+		return
 	}
-	if r.Method == http.MethodPost {
 
-		session, _ := store.Get(r, "user-session")
-		user, ok := session.Values["username"].(string)
-		if !ok {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
-			return
-		}
-
-		isbn := r.FormValue("isbn")
-
-		var book Books
-		err := db.QueryRow("SELECT title,isbn,cur_lend_amount,rec_state FROM all_books WHERE isbn = ?", isbn).Scan(&book.Title, &book.ISBN, &book.Cur_Lend_amount, &book.Rec_state)
-
-		if err != nil {
-			errorLog.Println("数据库错误：", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		var cur int
-		err = db.QueryRow("SELECT user_cur_lend_amount from users WHERE username = ?", user).Scan(&cur)
-		if err != nil {
-			errorLog.Println("数据库错误：", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		if cur > 5 {
-			errorLog.Println("当前借书已达上限")
-			w.WriteHeader(http.StatusForbidden) //403
-			return
-		}
-		var id int
-		err = db.QueryRow("SELECT lend_id FROM cur_lend_records WHERE username = ? AND isbn = ?", user, isbn).Scan(&id)
-		if err != nil {
-			if err == sql.ErrNoRows {
-				id = 1
-			} else {
-				errorLog.Println("数据库错误：", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-		}
-		if id == 1 {
-			if book.Cur_Lend_amount > 0 {
-				currentTime := time.Now()
-				now := currentTime.Format("2006-01-02")
-				exp_return_date := r.FormValue("exp_return_date")
-
-				expTime := time.Now().Truncate(24 * time.Hour)
-				expreturn, err := time.Parse("2006-01-02", exp_return_date)
-				if err != nil {
-					errorLog.Println("日期转换错误")
-					return
-				}
-				// 计算两个日期之间的差值
-				day := expreturn.Sub(expTime.Truncate(24*time.Hour)).Hours() / 24
-
-				if day >= 0 && day <= 14 {
-					_, err = db.Exec("INSERT INTO lend_records (username,title,isbn,lend_date,exp_return_date) values(?,?,?,?,?)", user, book.Title, book.ISBN, now, exp_return_date)
-					if err != nil {
-						errorLog.Println("数据库错误：", err)
-						w.WriteHeader(http.StatusInternalServerError)
-						return
-					}
-				} else {
-					errorLog.Println("日期设置错误")
-					w.WriteHeader(http.StatusBadRequest)
-					return
-				}
-				_, err = db.Exec("UPDATE all_books set cur_lend_amount = cur_lend_amount -1 WHERE isbn = ?", isbn)
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				_, err = db.Exec("UPDATE library_summary set total_lend_amount = total_lend_amount -1 , total_return_amount = total_return_amount +1")
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				_, err = db.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount + 1 , user_his_lend_amount = user_his_lend_amount +1 WHERE username = ?", user)
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				_, err = db.Exec("INSERT INTO cur_lend_records (username,title,isbn,lend_date,exp_return_date) values(?,?,?,?,?)", user, book.Title, book.ISBN, now, exp_return_date)
-				if err != nil {
-					errorLog.Println("数据库错误：", err)
-					w.WriteHeader(http.StatusInternalServerError)
-					return
-				}
-
-				if book.Rec_state == 1 {
-					_, err = db.Exec("UPDATE recommend_books SET cur_lend_amount = cur_lend_amount - 1 WHERE isbn = ?", isbn)
-					if err != nil {
-						errorLog.Println("数据库错误：", err)
-						w.WriteHeader(http.StatusInternalServerError)
-						return
-					}
-				}
-				w.WriteHeader(http.StatusOK)
-				return
-			} else {
-				w.WriteHeader(http.StatusNotFound)
-				errorLog.Println("此书已被借完")
-			}
-		} else {
-			errorLog.Println("已借出这本书")
-			w.WriteHeader(http.StatusForbidden) //403
-			return
-		}
+	// POST 请求需要身份验证（通过JWT）
+	username := GetUsername(r)
+	if username == "" {
+		http.Error(w, "未登录", http.StatusUnauthorized)
+		return
 	}
+
+	isbn := r.FormValue("isbn")
+	expReturnDate := r.FormValue("exp_return_date")
+
+	if isbn == "" || expReturnDate == "" {
+		http.Error(w, "参数不完整", http.StatusBadRequest)
+		return
+	}
+
+	// 验证日期格式
+	_, err := time.Parse("2006-01-02", expReturnDate)
+	if err != nil {
+		http.Error(w, "日期格式无效", http.StatusBadRequest)
+		return
+	}
+
+	// 检查是否已经借过同一本书
+	var exists int
+	err = db.QueryRow("SELECT COUNT(*) FROM cur_lend_records WHERE username = ? AND isbn = ?", username, isbn).Scan(&exists)
+	if err != nil {
+		errorLog.Println("查询借阅记录失败:", err)
+		http.Error(w, "服务器错误", http.StatusInternalServerError)
+		return
+	}
+	if exists > 0 {
+		http.Error(w, "已借阅此书", http.StatusForbidden)
+		return
+	}
+
+	tx, err := db.Begin()
+	if err != nil {
+		http.Error(w, "服务器错误", http.StatusInternalServerError)
+		return
+	}
+
+	// 获取图书信息和当前可借数量
+	var curLendAmount, userCurLend int
+	var title string
+	err = tx.QueryRow("SELECT cur_lend_amount, title FROM all_books WHERE isbn = ?", isbn).Scan(&curLendAmount, &title)
+	if err != nil {
+		errorLog.Println("查询图书失败:", err)
+		tx.Rollback()
+		http.Error(w, "图书不存在", http.StatusNotFound)
+		return
+	}
+
+	// 获取用户当前借书数量
+	err = tx.QueryRow("SELECT user_cur_lend_amount FROM users WHERE username = ?", username).Scan(&userCurLend)
+	if err != nil {
+		errorLog.Println("查询用户失败:", err)
+		tx.Rollback()
+		http.Error(w, "用户不存在", http.StatusNotFound)
+		return
+	}
+
+	// 检查是否达到借书上限（假设最多5本）
+	if userCurLend >= 5 {
+		tx.Rollback()
+		http.Error(w, "已达借阅上限", http.StatusForbidden)
+		return
+	}
+
+	// 检查是否有可借数量
+	if curLendAmount <= 0 {
+		tx.Rollback()
+		http.Error(w, "此书已被借完", http.StatusNotFound)
+		return
+	}
+
+	// 插入借阅记录
+	lendDate := time.Now().Format("2006-01-02")
+	_, err = tx.Exec("INSERT INTO lend_records (username, title, isbn, lend_date, exp_return_date) VALUES (?, ?, ?, ?, ?)",
+		username, title, isbn, lendDate, expReturnDate)
+	if err != nil {
+		errorLog.Println("插入借阅记录失败:", err)
+		tx.Rollback()
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	// 插入当前借阅记录
+	_, err = tx.Exec("INSERT INTO cur_lend_records (username, title, isbn, lend_date, exp_return_date) VALUES (?, ?, ?, ?, ?)",
+		username, title, isbn, lendDate, expReturnDate)
+	if err != nil {
+		errorLog.Println("插入当前借阅记录失败:", err)
+		tx.Rollback()
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	// 更新图书可借数量
+	_, err = tx.Exec("UPDATE all_books SET cur_lend_amount = cur_lend_amount - 1 WHERE isbn = ?", isbn)
+	if err != nil {
+		errorLog.Println("更新图书数量失败:", err)
+		tx.Rollback()
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	// 更新用户借阅数量
+	_, err = tx.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount + 1, user_his_lend_amount = user_his_lend_amount + 1 WHERE username = ?", username)
+	if err != nil {
+		errorLog.Println("更新用户数量失败:", err)
+		tx.Rollback()
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	// 更新汇总表
+	_, err = tx.Exec("UPDATE library_summary SET total_lend_amount = total_lend_amount + 1")
+	if err != nil {
+		errorLog.Println("更新汇总表失败:", err)
+		tx.Rollback()
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		errorLog.Println("提交事务失败:", err)
+		http.Error(w, "借阅失败", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "借阅成功"})
 }
 
+// ReturnBookHandler 处理还书请求（POST）
 func ReturnBookHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
-
-		session, _ := store.Get(r, "user-session")
-		user, ok := session.Values["username"].(string)
-		if !ok {
-			http.Redirect(w, r, "/login", http.StatusSeeOther)
+		username := GetUsername(r)
+		if username == "" {
+			http.Error(w, "未登录", http.StatusUnauthorized)
 			return
 		}
 
 		isbn := r.FormValue("isbn")
-
-		var expreturndate string
-		var title string
-		var lenddate string
-
-		err := db.QueryRow("SELECT title,lend_date,exp_return_date FROM cur_lend_records WHERE username = ? AND isbn = ? ", user, isbn).Scan(&title, &lenddate, &expreturndate)
-		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		expReturnDate, err := time.Parse("2006-01-02", expreturndate) // 确保格式与数据库中的一致
-		if err != nil {
-			errorLog.Println("解析日期错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+		if isbn == "" {
+			http.Error(w, "ISBN不能为空", http.StatusBadRequest)
 			return
 		}
 
-		currentTime := time.Now().Truncate(24 * time.Hour)
-
-		// 计算两个日期之间的差值
-		day := currentTime.Sub(expReturnDate.Truncate(24*time.Hour)).Hours() / 24
-
-		var money float64
-
-		var price float64
-
-		if day > 0 {
-			err = db.QueryRow("SELECT price FROM all_books WHERE isbn = ?", isbn).Scan(&price)
-			if err != nil {
-				errorLog.Println("数据库错误:", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
-			money = price * day * 0.02
-		} else {
-			money = 0
-		}
-
-		moneykey := r.FormValue("money-key")
-		if money > 0 {
-			if moneykey != "123456" {
-				w.WriteHeader(http.StatusForbidden) //403
-				return
-			}
-			w.WriteHeader(http.StatusOK)
-		}
-
-		_, err = db.Exec("UPDATE all_books  SET cur_lend_amount = cur_lend_amount +1 WHERE isbn = ?", isbn)
+		tx, err := db.Begin()
 		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
 			return
 		}
 
-		_, err = db.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount -1 WHERE username = ?", user)
+		// 检查用户是否有该书的借阅记录
+		var title, lendDate, expReturnDate string
+		err = tx.QueryRow("SELECT title, lend_date, exp_return_date FROM cur_lend_records WHERE username = ? AND isbn = ?", username, isbn).Scan(&title, &lendDate, &expReturnDate)
 		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			errorLog.Println("查询借阅记录失败:", err)
+			tx.Rollback()
+			http.Error(w, "未找到借阅记录", http.StatusNotFound)
 			return
 		}
 
-		var rec_state int
-		err = db.QueryRow("SELECT rec_state FROM all_books WHERE isbn = ?", isbn).Scan(&rec_state)
-		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		if rec_state == 1 {
-			_, err = db.Exec("UPDATE recommend_books SET cur_lend_amount = cur_lend_amount + 1 WHERE isbn = ?", isbn)
-			if err != nil {
-				errorLog.Println("数据库错误:", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
+		returnDate := time.Now().Format("2006-01-02")
+
+		// 计算逾期费用（每天0.1元）
+		expDate, _ := time.Parse("2006-01-02", expReturnDate)
+		retDate, _ := time.Parse("2006-01-02", returnDate)
+		lateFee := 0.0
+		if retDate.After(expDate) {
+			days := int(retDate.Sub(expDate).Hours() / 24)
+			lateFee = float64(days) * 0.1
 		}
 
-		_, err = db.Exec("UPDATE library_summary set total_lend_amount = total_lend_amount +1 , total_return_amount = total_return_amount -1")
+		// 插入还书记录
+		_, err = tx.Exec("INSERT INTO return_records (username, title, isbn, lend_date, exp_return_date, return_date, late_fee) VALUES (?, ?, ?, ?, ?, ?, ?)",
+			username, title, isbn, lendDate, expReturnDate, returnDate, lateFee)
 		if err != nil {
-			errorLog.Println("数据库错误：", err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		Now := time.Now()
-		now := Now.Format("2006-01-02")
-
-		_, err = db.Exec("INSERT INTO return_records (username,title,isbn,lend_date,exp_return_date,return_date,late_fee) values(?,?,?,?,?,?,?)", user, title, isbn, lenddate, expreturndate, now, money)
-		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			errorLog.Println("插入还书记录失败:", err)
+			tx.Rollback()
+			http.Error(w, "还书失败", http.StatusInternalServerError)
 			return
 		}
 
-		_, err = db.Exec("DELETE FROM cur_lend_records WHERE username = ? AND isbn = ?", user, isbn)
+		// 删除当前借阅记录
+		_, err = tx.Exec("DELETE FROM cur_lend_records WHERE username = ? AND isbn = ?", username, isbn)
 		if err != nil {
-			errorLog.Println("数据库错误:", err)
-			w.WriteHeader(http.StatusInternalServerError)
+			errorLog.Println("删除借阅记录失败:", err)
+			tx.Rollback()
+			http.Error(w, "还书失败", http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+
+		// 更新图书可借数量
+		_, err = tx.Exec("UPDATE all_books SET cur_lend_amount = cur_lend_amount + 1 WHERE isbn = ?", isbn)
+		if err != nil {
+			errorLog.Println("更新图书数量失败:", err)
+			tx.Rollback()
+			http.Error(w, "还书失败", http.StatusInternalServerError)
+			return
+		}
+
+		// 更新用户借阅数量
+		_, err = tx.Exec("UPDATE users SET user_cur_lend_amount = user_cur_lend_amount - 1 WHERE username = ?", username)
+		if err != nil {
+			errorLog.Println("更新用户数量失败:", err)
+			tx.Rollback()
+			http.Error(w, "还书失败", http.StatusInternalServerError)
+			return
+		}
+
+		// 更新汇总表
+		_, err = tx.Exec("UPDATE library_summary SET total_return_amount = total_return_amount + 1, total_lend_amount = total_lend_amount - 1")
+		if err != nil {
+			errorLog.Println("更新汇总表失败:", err)
+			tx.Rollback()
+			http.Error(w, "还书失败", http.StatusInternalServerError)
+			return
+		}
+
+		if err = tx.Commit(); err != nil {
+			errorLog.Println("提交事务失败:", err)
+			http.Error(w, "还书失败", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message": "还书成功",
+			"late_fee": lateFee,
+		})
 	}
 }
 
 func ViewSearchBookHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		// 检查Accept头
-		acceptHeader := r.Header.Get("Accept")
-		if strings.Contains(acceptHeader, "application/json") {
-			// 客户端请求JSON数据
-			handleJSONRequest(w, r)
-		} else {
-			// 客户端请求HTML页面
-			handleHTMLRequest(w)
-		}
-	} else {
-		http.Error(w, "方法不允许", http.StatusMethodNotAllowed)
-	}
-}
-
-func handleHTMLRequest(w http.ResponseWriter) {
-	tmpl, err := template.ParseFiles("html/lend-book-list.html")
-	if err != nil {
-		fmt.Printf("解析模板失败: %v\n", err)
-		http.Error(w, "服务器错误", http.StatusInternalServerError)
+		// GET 请求也返回JSON数据（供前端初始化加载）
+		handleJSONRequest(w, r)
 		return
 	}
-	err = tmpl.ExecuteTemplate(w, "lend-book-list.html", nil)
-	if err != nil {
-		fmt.Printf("执行模板失败: %v\n", err)
-		errorLog.Println("服务器错误：", err)
-		http.Error(w, "服务器错误", http.StatusInternalServerError)
-		return
+	if r.Method == http.MethodPost {
+		handleJSONRequest(w, r)
 	}
 }
 
 func handleJSONRequest(w http.ResponseWriter, r *http.Request) {
-	var rows *sql.Rows
-	var err error
-
 	selsearch := r.URL.Query().Get("selsearch")
 	inpsearch := r.URL.Query().Get("inpsearch")
+
+	var rows *sql.Rows
+	var err error
 
 	if selsearch == "" && inpsearch == "" {
 		rows, err = db.Query("SELECT title,author,isbn,press,press_date,price,cur_lend_amount,intro,cover FROM all_books")
@@ -364,17 +329,8 @@ func handleJSONRequest(w http.ResponseWriter, r *http.Request) {
 
 func ViewAdjustBookHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-adjustbook.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "view-adjustbook.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/view-adjustbook.html", nil)
+		return
 	}
 
 	if r.Method == http.MethodPost {
@@ -403,7 +359,6 @@ func ViewAdjustBookHandler(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 	}
 }
 
@@ -436,13 +391,12 @@ func ClassifySearchHandler(w http.ResponseWriter, r *http.Request) {
 			query += " AND book_type = ?"
 			params = append(params, value2)
 		}
-		if value3 != "" {
+		if value3 != "" && len(date) > 0 {
 			query += " AND press_date LIKE ?"
 			params = append(params, value3)
 		}
-		var a int
 		if value4 != "" {
-			a = 1
+			a := 1
 			query += " AND rec_state = ?"
 			params = append(params, a)
 		}
@@ -467,6 +421,7 @@ func ClassifySearchHandler(w http.ResponseWriter, r *http.Request) {
 			}
 			err = db.QueryRow("SELECT rec_type FROM recommend_books WHERE isbn = ?", Book.ISBN).Scan(&Book.Rec_type)
 			if err != nil && err == sql.ErrNoRows {
+				// rec_type 为空是正常情况
 			}
 			books = append(books, Book)
 		}

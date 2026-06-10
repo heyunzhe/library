@@ -1,18 +1,17 @@
 package mode
 
 import (
-	// "GoPath/librarys/library"
-	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // 用户结构体
@@ -25,6 +24,9 @@ type Users struct {
 	Birthday             string  `json:"birthday"`
 	Age                  int     `json:"age"`
 	Photo                string  `json:"photo"`
+	Email                string  `json:"email"`
+	Email_verified       int     `json:"email_verified"`
+	Created_at           string  `json:"created_at"`
 	Title                string  `json:"title"`
 	ISBN                 string  `json:"isbn"`
 	Lend_date            string  `json:"lend-date"`
@@ -88,43 +90,25 @@ func ViewUserHandler(w http.ResponseWriter, r *http.Request) {
 			errorLog.Println("数据库错误：", err)
 			return
 		}
-		if role == "Admin" {
-			tmpl, err := template.ParseFiles("html/view-user.html")
-			if err != nil {
-				fmt.Printf("解析模板失败: %v\n", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-			err = tmpl.ExecuteTemplate(w, "view-user.html", nil)
-			if err != nil {
-				fmt.Printf("执行模板失败: %v\n", err)
-				errorLog.Println("服务器错误：", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-		} else {
-			http.Error(w, "权限不足", http.StatusUnauthorized)
-			return
-		}
+		renderTemplate(w, "html/view-user.html", nil)
+		return
 	}
+
 	if r.Method == http.MethodPost {
 		username := r.FormValue("username") //获取输入读者号信息
 		user_name := "%" + username + "%"   //用于模糊查询
-		// if username != "" {
 		//查询读者号符合的用户信息
 		row, err := db.Query("SELECT * FROM users WHERE username like ?", user_name)
-		if err == sql.ErrNoRows { //判断是否为空
-			errorLog.Println("没有这个用户")
-			w.WriteHeader(http.StatusNotFound)
-			if err != nil { //其他错误
-				errorLog.Println("数据库错误", err)
-				w.WriteHeader(http.StatusInternalServerError)
-				return
-			}
+		if err != nil {
+			errorLog.Println("数据库错误", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 		defer row.Close()
 		var users []Users
 		for row.Next() {
 			var user Users
-			err = row.Scan(&user.Name, &user.Username, &user.Password, &user.User_cur_lend_amount, &user.User_his_lend_amount, &user.Birthday, &user.Age, &user.Photo)
+			err = row.Scan(&user.Name, &user.Username, &user.Password, &user.User_cur_lend_amount, &user.User_his_lend_amount, &user.Birthday, &user.Age, &user.Photo, &user.Email, &user.Email_verified, &user.Created_at)
 			if err != nil {
 				errorLog.Println("服务器错误：", err)
 				w.WriteHeader(http.StatusInternalServerError)
@@ -222,23 +206,8 @@ func ViewUserOpinionHandler(w http.ResponseWriter, r *http.Request) {
 			errorLog.Println("数据库错误：", err)
 			return
 		}
-		if role == "Admin" {
-			tmpl, err := template.ParseFiles("html/view-useropi.html")
-			if err != nil {
-				fmt.Printf("解析模板失败: %v\n", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-			err = tmpl.ExecuteTemplate(w, "view-useropi.html", nil)
-			if err != nil {
-				fmt.Printf("执行模板失败: %v\n", err)
-				errorLog.Println("服务器错误：", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-		} else {
-			http.Error(w, "权限不足", http.StatusUnauthorized)
-			return
+		renderTemplate(w, "html/view-useropi.html", nil)
 		}
-	}
 }
 
 // 回复用户意见建议
@@ -299,33 +268,20 @@ func AddUserOpinionHandler(w http.ResponseWriter, r *http.Request) {
 
 // 个人中心
 func UserLibraryHandler(w http.ResponseWriter, r *http.Request) {
-	session, _ := store.Get(r, "user-session")
-	user, ok := session.Values["username"].(string)
-
-	// user := r.FormValue("user")
-
 	if r.Method == http.MethodGet {
+		session, _ := store.Get(r, "user-session")
+		_, ok := session.Values["username"].(string)
 		if !ok {
 			http.Redirect(w, r, "/login", http.StatusSeeOther)
 			return
 		}
-
-		tmpl, err := template.ParseFiles("html/user-library.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-			return
-		}
-		err = tmpl.ExecuteTemplate(w, "user-library.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-			return
-		}
+		renderTemplate(w, "html/user-library.html", nil)
+		return
 	}
 
 	if r.Method == http.MethodPost {
+		session, _ := store.Get(r, "user-session")
+		user, ok := session.Values["username"].(string)
 		if !ok {
 			w.WriteHeader(http.StatusNotFound)
 			return
@@ -399,98 +355,244 @@ func UserLibraryHandler(w http.ResponseWriter, r *http.Request) {
 
 // 更新用户信息
 func UpdateUserHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "方法不允许", http.StatusMethodNotAllowed)
+		return
+	}
+
 	session, _ := store.Get(r, "user-session")
 	user, ok := session.Values["username"].(string)
 	if !ok {
-		w.WriteHeader(http.StatusNotFound)
+		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	mu.Lock()
+	defer mu.Unlock()
+
+	name := r.FormValue("name")
+	password := r.FormValue("password")
+	newpassword := r.FormValue("newpassword")
+	birthday := r.FormValue("birthday")
+	avatarPath := r.FormValue("avatar_path")
+
+	age := 0
+	if birthday != "" {
+		b, err := time.Parse("2006-01-02", birthday)
+		if err == nil {
+			age = time.Now().Year() - b.Year()
+			if time.Now().Month() < b.Month() || (time.Now().Month() == b.Month() && time.Now().Day() < b.Day()) {
+				age--
+			}
+			if age < 0 {
+				age = 0
+			}
+		}
+	}
+
+	var photoPath string
+	file, fileHeader, err := r.FormFile("photo")
+	if err == nil {
+		defer file.Close()
+		ext := ".jpg"
+		if fileHeader != nil && fileHeader.Filename != "" {
+			if strings.HasSuffix(strings.ToLower(fileHeader.Filename), ".png") {
+				ext = ".png"
+			} else if strings.HasSuffix(strings.ToLower(fileHeader.Filename), ".gif") {
+				ext = ".gif"
+			}
+		}
+		filename := "image-" + user + ext
+		photoPath = filepath.Join("images", filename)
+
+		outfile, cerr := os.Create(photoPath)
+		if cerr != nil {
+			errorLog.Println("无法创建文件:", cerr)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		defer outfile.Close()
+		io.Copy(outfile, file)
+	} else if avatarPath != "" {
+		photoPath = strings.TrimPrefix(avatarPath, "/")
+	}
 
 	tx, err := db.Begin()
 	if err != nil {
 		http.Error(w, "服务器错误", http.StatusInternalServerError)
 		return
 	}
+	defer tx.Rollback()
 
-	defer func() {
-		if err != nil {
-			tx.Rollback() // 在出现错误时回滚
-		}
-	}()
-	name := r.FormValue("name")
-	password := r.FormValue("password")
-	newpassword := r.FormValue("newpassword")
-	age := r.FormValue("age")
-	birthday := r.FormValue("birthday")
-
-	file, _, err := r.FormFile("photo")
-	if err != nil {
-		http.Error(w, "无法获取文件", http.StatusBadRequest)
-		errorLog.Println("无法获取文件", err)
-		return
-	}
-	defer file.Close()
-	filename := "image-" + user + ".jpg"          //文件命名
-	filepath := filepath.Join("images", filename) //保存图片文件
-
-	fileChan := make(chan error)
-
-	go func() {
-		outfile, err := os.Create(filepath) //创建文件
-		if err != nil {
-			http.Error(w, "无法创建文件", http.StatusInternalServerError)
-			errorLog.Println("无法创建文件", err)
-			return
-		}
-		defer outfile.Close()
-
-		_, err = io.Copy(outfile, file)
-		if err != nil {
-			http.Error(w, "无法保存文件", http.StatusInternalServerError)
-			errorLog.Println("无法保存文件", err)
-			return
-		}
-		fileChan <- err
-	}()
-	var oldpassword string
-	err = tx.QueryRow("SELECT password FROM users WHERE username = ?", user).Scan(&oldpassword)
-	if err != nil {
-		errorLog.Println("数据库错误", err)
-		return
-	}
-	if password == "" {
-		_, err = tx.Exec("UPDATE users SET name = ? , age = ? , birthday = ? , photo = ? WHERE username = ?", name, age, birthday, filepath, user)
-		if err != nil {
-			errorLog.Println("数据库错误", err)
-			return
-		}
-	} else if password != "" && password == oldpassword && password != newpassword {
-		_, err = tx.Exec("UPDATE users SET name = ? , password = ? , age = ? , birthday = ? , photo = ? WHERE username = ?", name, newpassword, age, birthday, filepath, user)
-		if err != nil {
-			errorLog.Println("数据库错误", err)
-			return
-		}
-
-	}
-	if err = tx.Commit(); err != nil {
-		http.Error(w, "服务器错误", http.StatusInternalServerError)
-		return
-	}
-	mu.Unlock()
-}
-
-// 重置用户密码
-func ResetpasswordHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodPost {
-		username := r.FormValue("username")
-		_, err := db.Exec("UPDATE users SET password = 123456 WHERE username = ? ", username)
+	if password != "" {
+		var storedPwd string
+		err = tx.QueryRow("SELECT password FROM users WHERE username = ?", user).Scan(&storedPwd)
 		if err != nil {
 			errorLog.Println("数据库错误:", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+		if bcrypt.CompareHashAndPassword([]byte(storedPwd), []byte(password)) != nil {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(map[string]string{"error": "当前密码错误"})
+			return
+		}
+		if newpassword != "" {
+			hashed, _ := bcrypt.GenerateFromPassword([]byte(newpassword), bcrypt.DefaultCost)
+			if photoPath != "" {
+				_, err = tx.Exec("UPDATE users SET name=?, password=?, age=?, birthday=?, photo=? WHERE username=?", name, string(hashed), age, birthday, photoPath, user)
+			} else {
+				_, err = tx.Exec("UPDATE users SET name=?, password=?, age=?, birthday=? WHERE username=?", name, string(hashed), age, birthday, user)
+			}
+		} else {
+			if photoPath != "" {
+				_, err = tx.Exec("UPDATE users SET name=?, age=?, birthday=?, photo=? WHERE username=?", name, age, birthday, photoPath, user)
+			} else {
+				_, err = tx.Exec("UPDATE users SET name=?, age=?, birthday=? WHERE username=?", name, age, birthday, user)
+			}
+		}
+	} else {
+		if photoPath != "" {
+			_, err = tx.Exec("UPDATE users SET name=?, age=?, birthday=?, photo=? WHERE username=?", name, age, birthday, photoPath, user)
+		} else {
+			_, err = tx.Exec("UPDATE users SET name=?, age=?, birthday=? WHERE username=?", name, age, birthday, user)
+		}
+	}
+	if err != nil {
+		errorLog.Println("数据库错误:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		errorLog.Println("提交事务失败:", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"message": "保存成功"})
+}
+
+// generateRandomPassword 生成随机密码
+func generateRandomPassword() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	b := make([]byte, 12)
+	for i := range b {
+		b[i] = charset[rng.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+// 重置用户密码（通过验证码）
+func ResetpasswordHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		email := r.FormValue("email") // 前端传递邮箱
+		if email == "" {
+			http.Error(w, "邮箱不能为空", http.StatusBadRequest)
+			return
+		}
+
+		// 获取最新的验证码
+		var storedCode string
+		var expiresAt time.Time
+		err := db.QueryRow("SELECT code, expires_at FROM verification_codes WHERE email = ? ORDER BY created_at DESC LIMIT 1", email).Scan(&storedCode, &expiresAt)
+		if err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "验证码未发送或已过期"})
+			return
+		}
+
+		if time.Now().After(expiresAt) {
+			db.Exec("DELETE FROM verification_codes WHERE email = ?", email)
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "验证码已过期"})
+			return
+		}
+
+		// 验证码校验
+		code := r.FormValue("code")
+		if storedCode != code {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": "验证码错误"})
+			return
+		}
+
+		// 验证通过，删除已使用的验证码
+		db.Exec("DELETE FROM verification_codes WHERE email = ?", email)
+
+		// 检查邮箱是否存在
+		var exists int
+		err = db.QueryRow("SELECT COUNT(*) FROM users WHERE email = ?", email).Scan(&exists)
+		if err != nil || exists == 0 {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			json.NewEncoder(w).Encode(map[string]string{"error": "该邮箱未注册"})
+			return
+		}
+
+		// 使用前端传递的新密码（通过code字段已废弃，现在使用password）
+		password := r.FormValue("password")
+		if password == "" {
+			// 如果没有传递新密码，生成随机密码
+			password = generateRandomPassword()
+		}
+
+		hashed, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+		if err != nil {
+			errorLog.Println("密码加密失败:", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("UPDATE users SET password = ? WHERE email = ? ", string(hashed), email)
+		if err != nil {
+			errorLog.Println("数据库错误:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"message":  "密码重置成功",
+			"password": password, // 返回密码（生产环境移除）
+		})
+	}
+}
+
+// AdminResetPasswordHandler 管理员重置密码（无需验证码）
+func AdminResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost {
+		username := r.FormValue("username")
+		if username == "" {
+			http.Error(w, "用户名不能为空", http.StatusBadRequest)
+			return
+		}
+
+		// 生成随机密码
+		newPassword := generateRandomPassword()
+		hashed, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+		if err != nil {
+			errorLog.Println("密码加密失败:", err)
+			http.Error(w, "服务器错误", http.StatusInternalServerError)
+			return
+		}
+
+		_, err = db.Exec("UPDATE users SET password = ? WHERE username = ? ", string(hashed), username)
+		if err != nil {
+			errorLog.Println("数据库错误:", err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(map[string]string{
+			"message": "密码已重置",
+			"password": newPassword,
+		})
 	}
 }

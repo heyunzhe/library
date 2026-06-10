@@ -6,219 +6,148 @@ let selectedValues = {
     value: null,
     value1: null,
     value2: null,
-    value3: null
+    value3: null,
+    value4: null
 };
 
-
-
-
 document.addEventListener('DOMContentLoaded', function() {
-    // 为所有分类链接添加点击事件监听器
-    document.querySelectorAll('.box7 a, .box8 a, .box9 a, .box10 a, .box11 a').forEach(link => {
+    // 分类筛选链接
+    document.querySelectorAll('.filter-links a').forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            let category;
-            if (this.closest('.box7')) {
-                category = 'value';
-            } else if (this.closest('.box8')) {
-                category = 'value1';
-            } else if (this.closest('.box9')) {
-                category = 'value2';
-            } else if (this.closest('.box10')) {
-                category = 'value3';
-            } else if (this.closest(`.box11`)) {
-                category = 'value4';
-            }
+            const section = this.closest('.filter-section');
+            if (!section) return;
+            const catLink = section.querySelector('.filter-links');
+            if (!catLink) return;
+            const category = catLink.dataset.category;
+            if (!category) return;
 
-            if (selectedValues[category] === this.textContent){
+            if (selectedValues[category] === this.textContent) {
                 selectedValues[category] = null;
-            }else{
+            } else {
                 selectedValues[category] = this.textContent;
             }
 
-
             updateSelectDisplay();
 
-            const formData = new FormData();
+            const fd = new FormData();
             for (let key in selectedValues) {
-                if (selectedValues[key]) {
-                    formData.append(key, selectedValues[key]);
-                }
+                if (selectedValues[key]) fd.append(key, selectedValues[key]);
             }
 
-            fetch('/class/search', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (!Array.isArray(data)) {
-                    throw new Error('Server did not return an array');
-                }
-                console.log('Received data:', data);
-                allBooks = data;
-                currentPage = 1;
-                displayBooks();
-                setupPagination();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                allBooks = [];
-                displayBooks();
-                setupPagination();
-            });
+            fetch('/class/search', { method: 'POST', body: fd })
+                .then(r => {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(data => {
+                    allBooks = Array.isArray(data) ? data : [];
+                    currentPage = 1;
+                    displayBooks();
+                    setupPagination();
+                })
+                .catch(() => {
+                    allBooks = [];
+                    displayBooks();
+                    setupPagination();
+                });
         });
     });
-    
-    // 检查URL参数并执行搜索（如果有参数）
-    const urlParams = new URLSearchParams(window.location.search);
-    const selsearch = urlParams.get('selsearch');
-    const inpsearch = urlParams.get('inpsearch');
+
+    // URL搜索参数
+    const params = new URLSearchParams(window.location.search);
+    const selsearch = params.get('selsearch');
+    const inpsearch = params.get('inpsearch');
     if (selsearch && inpsearch) {
         searchBooks(selsearch, inpsearch);
     } else {
-        // 如果没有搜索参数，则加载所有书籍
         fetchBooks();
     }
 
-    // 添加搜索表单的事件监听器
-    const searchForm = document.querySelector('form[action="/search/book"]');
-    searchForm.addEventListener('submit', function(e) {
+    // 搜索表单
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(this);
-        const selsearch = formData.get('selsearch');
-        const inpsearch = formData.get('inpsearch');
-        searchBooks(selsearch, inpsearch);
+        const fd = new FormData(this);
+        searchBooks(fd.get('selsearch'), fd.get('inpsearch'));
     });
 });
 
 function updateSelectDisplay() {
-    const select = document.getElementById('select');
-    select.innerHTML = Object.values(selectedValues).filter(Boolean).join(' ');
+    const el = document.getElementById('select');
+    el.textContent = Object.values(selectedValues).filter(Boolean).join(' ');
 }
 
 function fetchBooks() {
-    fetch('/search/book', {
-        headers: {
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Fetched all books:', data);
-        allBooks = data;
-        displayBooks();
-        setupPagination();
-    })
-    .catch(error => console.error('Error:', error));
+    fetch('/search/book', { method: 'POST', headers: { 'Accept': 'application/json' } })
+        .then(r => r.json())
+        .then(data => {
+            allBooks = Array.isArray(data) ? data : [];
+            displayBooks();
+            setupPagination();
+        })
+        .catch(() => { allBooks = []; displayBooks(); setupPagination(); });
 }
 
 function searchBooks(selsearch, inpsearch) {
-    const url = `/search/book?selsearch=${encodeURIComponent(selsearch)}&inpsearch=${encodeURIComponent(inpsearch)}`;
-    fetch(url, {
-        headers: {
-            'Accept': 'application/json'
-        }
+    fetch(`/search/book?selsearch=${encodeURIComponent(selsearch)}&inpsearch=${encodeURIComponent(inpsearch)}`, {
+        headers: { 'Accept': 'application/json' }
     })
-    .then(response => response.json())
+    .then(r => r.json())
     .then(data => {
-        console.log('Search results:', data);
-        allBooks = data;
-        currentPage = 1; // 重置到第一页
+        allBooks = Array.isArray(data) ? data : [];
+        currentPage = 1;
         displayBooks();
         setupPagination();
     })
-    .catch(error => console.error('Error:', error));
+    .catch(() => { allBooks = []; displayBooks(); setupPagination(); });
 }
 
 function displayBooks() {
-    const bookContainer = document.querySelector('.box13');
-    bookContainer.innerHTML = '';
-
-    if (!allBooks || allBooks.length === 0) {
-        bookContainer.innerHTML = '<p>没有找到匹配的书籍。</p>';
-        return;
+    // 由 lend-book-list.js 中的 renderBooks 处理
+    if (typeof renderBooks === 'function') {
+        renderBooks(allBooks);
+    } else {
+        // 降级：如果没有 renderBooks，用基础渲染
+        const container = document.getElementById('bookContainer');
+        if (!container) return;
+        container.innerHTML = '';
+        if (!allBooks || allBooks.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8">暂无书籍</div>';
+            return;
+        }
+        const start = (currentPage - 1) * booksPerPage;
+        const end = start + booksPerPage;
+        allBooks.slice(start, end).forEach(book => {
+            const div = document.createElement('div');
+            div.textContent = book.title;
+            container.appendChild(div);
+        });
     }
-
-    const start = (currentPage - 1) * booksPerPage;
-    const end = start + booksPerPage;
-    const booksToDisplay = allBooks.slice(start, end);
-
-    booksToDisplay.forEach((book, index) => {
-        const bookElement = document.createElement('div');
-        bookElement.className = `box13-${index + 1}`;
-        bookElement.innerHTML = `
-            <img src="../${book.cover}" alt="${book.title}" class="book">
-            <div class="box13-${index + 1}-1">
-                <h3><a href="">${book.title}</a></h3>
-                <ul>
-                    <li>作者：${book.author}</li>
-                    <label for="">ISBN:</label><li class="ISBN">${book.isbn}</li>
-                </ul>
-                <ul>
-                    <li>出版年份：${book.press_date}</li>
-                    <li>出版社：${book.press}</li>
-                </ul>
-                <ul>
-                    <li>价格：${book.price}</li>
-                    <li>可借数：${book.cur_lend_amount}</li>
-                </ul>
-                <ul>
-                    <li>简介：</li>
-                </ul>
-                <div class="intro_style">
-                    <p class="intro">${book.intro}</p>
-                </div>
-                <div class="lend_book">
-                    <a href="#" id="lend_book">加入借书架</a>
-                </div>
-            </div>
-        `;
-        bookContainer.appendChild(bookElement);
-    });
 }
 
 function setupPagination() {
-    const totalPages = Math.ceil(allBooks.length / booksPerPage);
-    const paginationContainer = document.getElementById('pagination');
-    paginationContainer.innerHTML = '';
+    const total = Math.ceil(allBooks.length / booksPerPage);
+    const el = document.getElementById('pagination');
+    if (!el) return;
+    el.innerHTML = '';
 
-    // Previous button
-    const prevButton = document.createElement('button');
-    prevButton.textContent = '上一页';
-    prevButton.addEventListener('click', () => {
-        if (currentPage > 1) {
-            currentPage--;
-            displayBooks();
-        }
-    });
-    paginationContainer.appendChild(prevButton);
+    const prev = document.createElement('button');
+    prev.textContent = '‹ 上一页';
+    prev.disabled = currentPage <= 1;
+    prev.onclick = () => { if (currentPage > 1) { currentPage--; displayBooks(); setupPagination(); } };
+    el.appendChild(prev);
 
-    // Page numbers
-    for (let i = 1; i <= totalPages; i++) {
-        const pageButton = document.createElement('button');
-        pageButton.textContent = i;
-        pageButton.addEventListener('click', () => {
-            currentPage = i;
-            displayBooks();
-        });
-        paginationContainer.appendChild(pageButton);
+    for (let i = 1; i <= total; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.className = 'active';
+        btn.onclick = () => { currentPage = i; displayBooks(); setupPagination(); };
+        el.appendChild(btn);
     }
 
-    // Next button
-    const nextButton = document.createElement('button');
-    nextButton.textContent = '下一页';
-    nextButton.addEventListener('click', () => {
-        if (currentPage < totalPages) {
-            currentPage++;
-            displayBooks();
-        }
-    });
-    paginationContainer.appendChild(nextButton);
+    const next = document.createElement('button');
+    next.textContent = '下一页 ›';
+    next.disabled = currentPage >= total;
+    next.onclick = () => { if (currentPage < total) { currentPage++; displayBooks(); setupPagination(); } };
+    el.appendChild(next);
 }

@@ -1,55 +1,105 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>登陆界面</title>
-    <link rel="stylesheet" href="../css/login.css">
+    <title>图书馆管理系统</title>
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 <body>
-    <div class="fbox">
+    <div class="page">
+        <div class="card">
 
-        <div class="logo">
-            <img src="../images/logo.png" alt="">
-        </div>
-        <div class="box">
-            <form id="loginForm" method="post" action="/login" onsubmit="return login(event)">
-                <p class="login" id="login">登录界面</p>
-                <div class="box1">
-                    帐号：<input type="text" id="username" placeholder="读者号" name="username" required>
+            <!-- 登录 -->
+            <form id="loginForm" class="form" onsubmit="return login(event)">
+                <div class="logo">
+                    <img src="/images/logo.png" alt="">
                 </div>
-                <br>
-                <div class="box2">
-                    密码：<input type="password" id="password" placeholder="密码" name="password" required>
+                <h2>欢迎回来</h2>
+                <p class="sub">图书馆管理系统</p>
+                <div class="field">
+                    <input type="text" id="username" placeholder="读者号" required>
                 </div>
-                <br><br>
-                <div class="box3">
-                    <button type="submit" id="loginButton">登录</button>
+                <div class="field">
+                    <input type="password" id="password" placeholder="密码" required>
                 </div>
-            </form>
-            <form id="registerForm" class="hidden">
-                <p class="register" id="login">注册界面</p>
-                <div class="box1">
-                    帐号：<input type="text" name="username" placeholder="读者号" required>
-                </div><br>
-                <div class="box2">
-                    密码：<input type="password" name="password" placeholder="密码" required>
-                </div><br>
-                <div class="box2">
-                    确认：<input type="password" name="password2" placeholder="确认密码" required>
-                </div><br>
-                <div class="box3">
-                    <button type="submit">注册</button>
+                <button type="submit">登 录</button>
+                <div class="actions">
+                    <a href="#" onclick="showRegister();return false">没有账号？立即注册</a>
+                    <a href="#" onclick="showReset();return false">忘记密码？</a>
                 </div>
             </form>
-            <div class="box4">
-                <button id="toggleForm" class="toggle-btn">切换到注册</button>
-            </div>
-    
+
+            <!-- 注册 -->
+            <form id="registerForm" class="form hidden" onsubmit="return register(event)">
+                <div class="logo">
+                    <img src="/images/logo.png" alt="">
+                </div>
+                <h2>创建账号</h2>
+                <p class="sub">输入邮箱即可注册，读者号默认为邮箱</p>
+                <div class="field">
+                    <input type="email" id="reg_email" placeholder="邮箱" required>
+                </div>
+                <div class="field code-field">
+                    <input type="text" id="reg_code" placeholder="验证码" maxlength="6">
+                    <button type="button" id="sendCodeBtn" onclick="sendVerifyCode()">获取验证码</button>
+                </div>
+                <div class="field">
+                    <input type="password" id="reg_password" placeholder="设置密码（至少6位）" required>
+                </div>
+                <div class="field">
+                    <input type="password" id="reg_password2" placeholder="确认密码" required>
+                </div>
+                <button type="submit">注 册</button>
+                <div class="actions">
+                    <a href="#" onclick="showLogin();return false">已有账号？立即登录</a>
+                </div>
+            </form>
+
+            <!-- 重置密码 -->
+            <form id="resetForm" class="form hidden" onsubmit="return resetPassword(event)">
+                <div class="logo">
+                    <img src="/images/logo.png" alt="">
+                </div>
+                <h2>重置密码</h2>
+                <p class="sub">输入注册邮箱，通过验证码重置密码</p>
+                <div class="field">
+                    <input type="email" id="rst_email" placeholder="注册邮箱" required>
+                </div>
+                <div class="field code-field">
+                    <input type="text" id="rst_code" placeholder="验证码" maxlength="6">
+                    <button type="button" id="sendResetCodeBtn" onclick="sendResetCode()">获取验证码</button>
+                </div>
+                <div class="field">
+                    <input type="password" id="rst_password" placeholder="新密码（至少6位）" required>
+                </div>
+                <div class="field">
+                    <input type="password" id="rst_password2" placeholder="确认新密码" required>
+                </div>
+                <button type="submit">重置密码</button>
+                <div class="actions">
+                    <a href="#" onclick="showLogin();return false">返回登录</a>
+                </div>
+            </form>
+
         </div>
     </div>
 
-    <script src="../js/login.js"></script>
+    <script src="/js/login.js"></script>
+    <!-- 注册成功弹窗 -->
+    <div id="successModal" class="modal-mask hidden">
+        <div class="modal-box">
+            <h3>🎉 注册成功</h3>
+            <p>请妥善保管您的账号信息：</p>
+            <div class="modal-info">
+                <div class="info-row"><span>读者号：</span><strong id="modalUsername"></strong></div>
+                <div class="info-row"><span>密　码：</span><strong id="modalPassword"></strong></div>
+            </div>
+            <p style="font-size:13px;color:#ef4444;margin-top:8px">请截图或牢记您的读者号，后续登录需要使用</p>
+            <button onclick="confirmRegister()" class="btn-primary" style="margin-top:16px">我知道了，去登录</button>
+        </div>
+    </div>
+
 
 </body>
 </html>

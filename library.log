@@ -1,0 +1,65 @@
+错误是：2024/11/05 15:04:31 userbook.go:104: 日期设置错误
+错误是：2025/12/05 20:38:07 userbook.go:104: 日期设置错误
+错误是：2025/12/05 20:39:12 login.go:295: 帐号或密码错误： sql: no rows in result set
+错误是：2025/12/05 20:39:18 login.go:295: 帐号或密码错误： sql: no rows in result set
+错误是：2025/12/09 14:01:24 login.go:295: 帐号或密码错误： sql: no rows in result set
+错误是：2026/03/23 20:20:41 users.go:431: 无法获取文件 http: no such file
+错误是：2026/03/24 15:54:39 login.go:98: 帐号或密码错误： sql: no rows in result set
+错误是：2026/04/01 12:02:20 userbook.go:104: 日期设置错误
+错误是：2026/04/01 12:24:24 login.go:43: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:43680: write: broken pipe
+错误是：2026/04/16 17:14:18 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:49854: write: broken pipe
+错误是：2026/04/16 17:15:20 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:38838: write: broken pipe
+错误是：2026/04/16 17:15:20 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:38844: write: broken pipe
+错误是：2026/04/16 17:15:21 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:38852: write: broken pipe
+错误是：2026/04/16 17:15:21 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:48302: write: broken pipe
+错误是：2026/04/16 17:15:24 login.go:45: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:48334: write: broken pipe
+错误是：2026/04/16 17:25:01 login.go:45: 服务器错误： write tcp [::1]:8080->[::1]:52040: write: broken pipe
+错误是：2026/04/16 17:25:15 login.go:43: 服务器错误： write tcp 127.0.0.1:8080->127.0.0.1:35160: write: broken pipe
+错误是：2026/06/02 13:36:16 login.go:99: 帐号或密码错误： sql: no rows in result set
+错误是：2026/06/02 13:39:47 register.go:60: 发送验证码失败: SMTP_USER 或 SMTP_PASS 未设置
+错误是：2026/06/02 13:46:18 register.go:60: 发送验证码失败: SMTP_USER 或 SMTP_PASS 未设置
+错误是：2026/06/02 13:56:21 register.go:60: 发送验证码失败: 550 The recipient may contain a non-existent account, please check the recipient address.
+错误是：2026/06/02 13:57:31 register.go:60: 发送验证码失败: 550 The recipient may contain a non-existent account, please check the recipient address.
+错误是：2026/06/02 14:07:35 register.go:133: 解析过期时间失败: parsing time "2026-06-02T14:17:33Z" as "2006-01-02 15:04:05": cannot parse "T14:17:33Z" as " ", 原始值: 2026-06-02T14:17:33Z
+错误是：2026/06/02 15:57:33 userbook.go:111: 日期设置错误
+错误是：2026/06/02 16:05:45 login.go:362: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/02 16:05:46 userbook.go:158: 已借出这本书
+错误是：2026/06/02 16:05:46 login.go:362: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/02 16:05:49 login.go:362: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/02 16:08:29 login.go:363: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.l.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/02 16:08:33 login.go:363: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.l.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/02 18:11:02 table.go:34: 执行模板失败 html/library.html: template: no template "html/library.html" associated with template "library.html"
+错误是：2026/06/02 18:16:17 login.go:71: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/02 18:16:20 login.go:71: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/02 18:16:22 login.go:71: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/02 18:26:55 users.go:385: 无法获取文件 http: no such file
+错误是：2026/06/03 19:45:50 login.go:436: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 19:45:54 login.go:436: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 19:45:55 login.go:436: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 19:45:56 login.go:436: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 21:57:04 login.go:488: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 21:57:12 login.go:488: 数据库错误： Error 1055 (42000): Expression #1 of SELECT list is not in GROUP BY clause and contains nonaggregated column 'library.lend_records.title' which is not functionally dependent on columns in GROUP BY clause; this is incompatible with sql_mode=only_full_group_by
+错误是：2026/06/03 22:19:02 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/03 22:19:16 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 13:37:26 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 13:50:00 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 14:00:02 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 14:24:00 users.go:116: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 16:05:01 users.go:110: 服务器错误： sql: expected 11 destination arguments in Scan, not 8
+错误是：2026/06/04 16:12:52 users.go:112: 服务器错误： sql: expected 11 destination arguments in Scan, not 10
+错误是：2026/06/10 15:33:17 register.go:69: 发送验证码失败: SMTP_USER 或 SMTP_PASS 未设置
+错误是：2026/06/10 15:33:17 login.go:82: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/10 15:33:23 login.go:82: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/10 15:33:28 login.go:82: 账号或密码错误： sql: no rows in result set
+错误是：2026/06/10 15:35:06 adminbooks.go:88: 无法获取文件 request Content-Type isn't multipart/form-data
+错误是：2026/06/10 15:35:06 adminbooks.go:277: 数量转换错误: strconv.Atoi: parsing "": invalid syntax
+错误是：2026/06/10 15:35:06 adminbooks.go:447: 查询错误 sql: no rows in result set
+错误是：2026/06/10 15:35:53 adminbooks.go:88: 无法获取文件 http: no such file
+错误是：2026/06/10 15:36:15 adminnotices.go:159: 解析日期错误: parsing time "" as "2006-01-02": cannot parse "" as "2006"
+错误是：2026/06/10 15:36:15 users.go:225: 解析日期错误: parsing time "" as "2006-01-02": cannot parse "" as "2006"
+错误是：2026/06/10 15:36:38 userbook.go:183: 查询借阅记录失败: sql: no rows in result set
+错误是：2026/06/10 15:37:25 adminnotices.go:146: 数据库错误
+错误是：2026/06/10 15:37:25 register.go:235: 发送验证码失败: SMTP_USER 或 SMTP_PASS 未设置
+错误是：2026/06/10 15:39:40 adminbooks.go:447: 查询错误 sql: no rows in result set
+错误是：2026/06/10 15:39:40 login.go:169: 验证会话时出错: 获取会话失败: securecookie: the value is not valid
+错误是：2026/06/10 15:40:45 adminbooks.go:447: 查询错误 sql: no rows in result set

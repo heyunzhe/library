@@ -1,0 +1,107 @@
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+    font-family: "PingFang SC", "Source Han Serif SC", "Noto Serif SC", Georgia, serif;
+    background: #faf9f7;
+    color: #1e293b;
+    min-height: 100vh;
+}
+
+.reader-nav {
+    background: #fff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-inner {
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    height: 54px;
+    gap: 16px;
+}
+
+.back-link {
+    font-size: 14px;
+    color: #3b82f6;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.back-link:hover { text-decoration: underline; }
+
+.nav-title {
+    flex: 1;
+    font-size: 15px;
+    font-weight: 600;
+    color: #0f172a;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.nav-author {
+    font-size: 13px;
+    color: #94a3b8;
+    white-space: nowrap;
+}
+
+.reader-content {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+}
+
+.book-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #0f172a;
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.book-author {
+    text-align: center;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 24px;
+}
+
+.book-intro {
+    background: #f1f5f9;
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 20px;
+}
+
+.book-intro h3 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.book-intro p {
+    font-size: 14px;
+    line-height: 1.8;
+    color: #475569;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #e2e8f0;
+    margin-bottom: 28px;
+}
+
+.book-body {
+    font-size: 16px;
+    line-height: 2;
+    color: #334155;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}

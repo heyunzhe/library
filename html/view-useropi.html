@@ -4,56 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>用户意见管理</title>
-    <link rel="stylesheet" href="../css/view-useropi.css">
+    <link rel="stylesheet" href="/css/view-useropi.css">
 </head>
 <body>
-    <div class="container">
-        <h1>用户意见管理</h1>
-        <form action="/chaxopi" method="post" id="searchForm">
-            <input type="text" id="searchId" name="opinion_id" placeholder="输入ID查询">  
-            <button>查询</button>  
-        </form>
-        <table id="opinionsTable">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>姓名</th>
-                    <th>电话</th>
-                    <th>邮箱</th>
-                    <th>意见</th>
-                    <th>回复</th>
-                </tr>
-            </thead>
-            <tbody id="opinionsList">
-                <!-- 用户意见将通过JavaScript动态加载 -->
-            </tbody>
-        </table>
-    </div>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/index" class="nav-brand">📚 图书馆</a>
+            <div class="nav-links">
+                <a href="/admin">后台首页</a>
+                <a href="/view/book">图书管理</a>
+                <a href="/view/useropi" class="active">意见管理</a>
+                <a href="/view/notice">公告管理</a>
+            </div>
+        </div>
+    </nav>
 
-    <div id="replyModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>回复用户意见</h2>
-            <form id="replyForm">
-                <input type="hidden" id="replay_user" name="replay_user">
-                <div class="form-group">
-                    <label for="replay_name">回复单位：</label>
-                    <input type="text" id="replay_name" name="replay_name" required>
-                </div>
-                <div class="form-group">
-                    <label for="replay_date">回复日期：</label>
-                    <input type="date" id="replay_date" name="replay_date" required>
-                </div>
-                <div class="form-group">
-                    <label for="replay_idea">回复内容：</label>
-                    <textarea id="replay_idea" name="replay_idea" required></textarea>
-                </div>
-                <button type="submit">提交回复</button>
-            </form>
+    <div class="container">
+        <div class="page-header">
+            <h1>用户意见管理</h1>
+        </div>
+
+        <div class="search-section">
+            <input type="text" id="searchId" placeholder="输入ID搜索...">
+            <button type="button" onclick="fetchOpinions(document.getElementById('searchId').value)">搜索</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="opinionsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>姓名</th>
+                        <th>电话</th>
+                        <th>邮箱</th>
+                        <th>意见</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="opinionsList"></tbody>
+            </table>
         </div>
     </div>
 
-    <script src="../js/view-useropi.js"></script>
-    
+    <!-- 回复弹窗 -->
+    <div id="replyModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>回复用户意见</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="replyForm">
+                    <input type="hidden" id="replay_user" name="replay_user">
+
+                    <div class="form-group">
+                        <label for="replay_name">回复单位</label>
+                        <input type="text" id="replay_name" name="replay_name" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="replay_date">回复日期</label>
+                        <input type="date" id="replay_date" name="replay_date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="replay_idea">回复内容</label>
+                        <textarea id="replay_idea" name="replay_idea" required></textarea>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary modal-close">取消</button>
+                        <button type="submit" class="btn btn-reply">提交回复</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 查看详情弹窗 -->
+    <div id="viewModal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>用户意见详情</h2>
+                <button class="modal-close close-view">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="margin-bottom: 12px;">
+                    <span style="color: #64748b; font-size: 13px;">姓名：</span>
+                    <strong id="view_name" style="color: #0f172a;"></strong>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <span style="color: #64748b; font-size: 13px;">电话：</span>
+                    <strong id="view_phone" style="color: #0f172a;"></strong>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <span style="color: #64748b; font-size: 13px;">邮箱：</span>
+                    <strong id="view_email" style="color: #0f172a;"></strong>
+                </div>
+                <div>
+                    <span style="color: #64748b; font-size: 13px; display: block; margin-bottom: 6px;">意见内容：</span>
+                    <div id="view_idea" style="background: #f8fafc; padding: 12px; border-radius: 8px; font-size: 14px; line-height: 1.6;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/view-useropi.js"></script>
 </body>
 </html>

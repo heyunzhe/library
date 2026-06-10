@@ -4,29 +4,45 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>添加公告</title>
-    <link rel="stylesheet" href="../css/addnotice.css">
+    <link rel="stylesheet" href="/css/addnotice.css">
 </head>
 <body>
-    <div class="container">
-        <h1>添加公告</h1>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/admin" class="nav-brand">📚 后台</a>
+            <div class="nav-links">
+                <a href="/admin">首页</a>
+                <a href="/view/notice">公告</a>
+                <a href="/add/notice" class="active">发布</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="card">
+        <div class="card-header">
+            <h1>发布新公告</h1>
+            <p>向读者发布重要通知</p>
+        </div>
+
         <form action="/add/notice" method="post" id="addnotice">
             <div class="form-group">
-                <label for="notice_date">公告日期：</label>
-                <input type="date"  id="notice_date" name="notice_date" required>
+                <label for="notice_date">发布日期<span class="required">*</span></label>
+                <input type="date" id="notice_date" name="notice_date" required>
             </div>
+
             <div class="form-group">
-                <label for="notice_title">公告标题：</label>
-                <input type="text" id="notice_title" name="notice_title" required>
+                <label for="notice_title">公告标题<span class="required">*</span></label>
+                <input type="text" id="notice_title" name="notice_title" required placeholder="请输入公告标题">
             </div>
+
             <div class="form-group">
-                <label for="notice">公告内容：</label>
-                <textarea id="notice" name="notice" required></textarea>
+                <label for="notice">公告内容<span class="required">*</span></label>
+                <textarea id="notice" name="notice" placeholder="请输入公告详细内容..."></textarea>
             </div>
-            <button type="submit">确定</button>
+
+            <button type="submit" class="btn-submit">发布公告</button>
         </form>
     </div>
 
-    <script src="../js/addnotice.js"></script>
-
+    <script src="/js/addnotice.js"></script>
 </body>
-</html>

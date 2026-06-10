@@ -4,40 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>归还记录查询</title>
-    <link rel="stylesheet" href="../css/view-lend-records.css">
+    <link rel="stylesheet" href="/css/view-return-records.css">
 </head>
 <body>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/admin" class="nav-brand">📚 后台</a>
+            <div class="nav-links">
+                <a href="/admin">首页</a>
+                <a href="/view/book">图书</a>
+                <a href="/view/user">用户</a>
+                <a href="/lend/records">借阅</a>
+                <a href="/return/records" class="active">归还</a>
+            </div>
+        </div>
+    </nav>
+
     <div class="container">
-        <h1>归还记录查询</h1>
-        <form id="lendRecordsForm">
-            <select name="class" id="queryType">
+        <div class="page-header">
+            <h1>✅ 归还记录</h1>
+        </div>
+
+        <div class="search-section">
+            <form id="returnRecordsForm">
+            <select id="queryType" name="class">
                 <option value="1">全部记录</option>
                 <option value="2">归还日期</option>
                 <option value="3">用户帐号</option>
             </select>
-            <input type="text" id="queryInput" name="return_date" placeholder="请输入查询内容">
+            <input type="text" id="queryInput" name="return_date" placeholder="请输入查询内容...">
             <button type="submit">查询</button>
-        </form>
-        <table id="lendRecordsTable">
-            <thead>
-                <tr>
-                    <th>借阅ID</th>
-                    <th>用户账号</th>
-                    <th>书籍标题</th>
-                    <th>ISBN</th>
-                    <th>借阅日期</th>
-                    <th>预计归还日期</th>
-                    <th>归还日期</th>
-                    <th>逾期费用</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- 数据将通过JavaScript动态添加 -->
-            </tbody>
-        </table>
+            </form>
+        </div>
+
+        <div class="table-wrapper">
+            <table id="returnRecordsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>用户</th>
+                        <th>书籍</th>
+                        <th>ISBN</th>
+                        <th>借阅日</th>
+                        <th>到期日</th>
+                        <th>归还日</th>
+                        <th>逾期费</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
     </div>
 
-    <script src="../js/view-return-records.js"></script>
-
+    <script src="/js/view-return-records.js"></script>
 </body>
-</html>

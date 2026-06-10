@@ -3,10 +3,7 @@ package mode
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
-	_ "github.com/mattn/go-sqlite3"
 	"net/http"
-	"text/template"
 	"time"
 )
 
@@ -30,23 +27,7 @@ func AddNoticeHandler(w http.ResponseWriter, r *http.Request) {
 			errorLog.Println("数据库错误：", err)
 			return
 		}
-		if role == "Admin" {
-			tmpl, err := template.ParseFiles("html/addnotice.html")
-			if err != nil {
-				fmt.Printf("解析模板失败: %v\n", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-			err = tmpl.ExecuteTemplate(w, "addnotice.html", nil)
-			if err != nil {
-				fmt.Printf("执行模板失败: %v\n", err)
-				errorLog.Println("服务器错误：", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-		} else {
-
-			http.Error(w, "权限不足", http.StatusUnauthorized)
-			return
-		}
+		renderTemplate(w, "html/addnotice.html", nil)
 	}
 
 	if r.Method == http.MethodPost {
@@ -84,23 +65,7 @@ func ViewNoticeHandler(w http.ResponseWriter, r *http.Request) {
 			errorLog.Println("数据库错误：", err)
 			return
 		}
-		if role == "Admin" {
-			tmpl, err := template.ParseFiles("html/view-notice.html")
-			if err != nil {
-				fmt.Printf("解析模板失败: %v\n", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-			err = tmpl.ExecuteTemplate(w, "view-notice.html", nil)
-			if err != nil {
-				fmt.Printf("执行模板失败: %v\n", err)
-				errorLog.Println("服务器错误：", err)
-				http.Error(w, "服务器错误", http.StatusInternalServerError)
-			}
-		} else {
-
-			http.Error(w, "权限不足", http.StatusUnauthorized)
-			return
-		}
+		renderTemplate(w, "html/view-notice.html", nil)
 	}
 	if r.Method == http.MethodPost {
 		notice_id := r.FormValue("notice_id") //获取查询内容

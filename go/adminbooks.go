@@ -3,18 +3,13 @@ package mode
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
-	"text/template"
 	"time"
 
-	_ "github.com/mattn/go-sqlite3"
-	// "golang.org/x/text/date"
-	// "golang.org/x/tools/go/analysis/passes/defers"
 )
 
 // 所有图书结构体
@@ -57,21 +52,11 @@ type ReturnRecords struct {
 
 // 添加图书功能
 func AddBooksHandler(w http.ResponseWriter, r *http.Request) {
-	//打开网页
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/addbook.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "addbook.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/addbook.html", nil)
+		return
 	}
-	//添加操作
+
 	if r.Method == http.MethodPost {
 		r.ParseMultipartForm(10 << 20)
 		ctx := r.Context()
@@ -193,20 +178,11 @@ func AddBooksHandler(w http.ResponseWriter, r *http.Request) {
 
 // 查询书籍功能
 func ViewBookHandler(w http.ResponseWriter, r *http.Request) {
-	//打开网页
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-book.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "view-book.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/view-book.html", nil)
+		return
 	}
+
 	if r.Method == http.MethodPost {
 		title := r.FormValue("title")
 		var row *sql.Rows
@@ -308,20 +284,15 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		file, _, err := r.FormFile("cover") //获取文件
-		if err != nil {
-			http.Error(w, "无法获取文件", http.StatusBadRequest)
-			errorLog.Println("无法获取文件", err)
-			return
-		}
-		defer file.Close()
-		filename := "image" + isbn + ".jpg"           //文件命名
-		filepath := filepath.Join("images", filename) //保存图片文件
+		// 封面可选：如果没有上传新封面，保留原有的封面路径
+		var coverPath string
+		file, _, err := r.FormFile("cover")
+		if err == nil {
+			defer file.Close()
+			filename := "image" + isbn + ".jpg"
+			coverPath = filepath.Join("images", filename)
 
-		fileChan := make(chan error)
-
-		go func() {
-			outfile, err := os.Create(filepath) //创建文件
+			outfile, err := os.Create(coverPath)
 			if err != nil {
 				http.Error(w, "无法创建文件", http.StatusInternalServerError)
 				errorLog.Println("无法创建文件", err)
@@ -335,8 +306,13 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 				errorLog.Println("无法保存文件", err)
 				return
 			}
-			fileChan <- err
-		}()
+		} else {
+			// 没有上传封面，获取原有的封面路径
+			err = db.QueryRow("SELECT cover FROM all_books WHERE isbn = ?", yisbn).Scan(&coverPath)
+			if err != nil {
+				coverPath = ""
+			}
+		}
 
 		tx, err := db.Begin()
 		if err != nil {
@@ -380,7 +356,7 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 				}
 				if err == sql.ErrNoRows { //不存在
 					//新插入一条记录到推荐图书表
-					_, err = tx.Exec("INSERT INTO recommend_books (isbn,title,author,rec_type,cover,cur_lend_amount) values(?,?,?,?,?,?)", isbn, title, author, rec_type, filepath, cur_lend_amount)
+					_, err = tx.Exec("INSERT INTO recommend_books (isbn,title,author,rec_type,cover,cur_lend_amount) values(?,?,?,?,?,?)", isbn, title, author, rec_type, coverPath, cur_lend_amount)
 					if err != nil {
 						errorLog.Println("数据库错误：", err)
 						return
@@ -390,7 +366,7 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 					return
 				} else { //存在
 					//更新这条记录
-					_, err = tx.Exec("UPDATE recommend_books SET isbn = ? , title = ? , author = ? , rec_type = ? , cover = ? , cur_lend_amount = ? WHERE isbn = ?", isbn, title, author, rec_type, filepath, cur_lend_amount, yisbn)
+					_, err = tx.Exec("UPDATE recommend_books SET isbn = ? , title = ? , author = ? , rec_type = ? , cover = ? , cur_lend_amount = ? WHERE isbn = ?", isbn, title, author, rec_type, coverPath, cur_lend_amount, yisbn)
 					if err != nil {
 						errorLog.Println("数据库错误：", err)
 						return
@@ -405,7 +381,7 @@ func UpdateBookHandler(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 			//根据原isbn更新所有图书表的信息
-			_, err = tx.Exec("UPDATE all_books SET title = ? , author = ? ,book_type = ? , press = ? , press_date = ? , isbn = ? , intro = ? , price = ? , amount = ? , lend_amount = ?, cur_lend_amount = ? , rec_state = ? , cover = ? WHERE isbn = ?", title, author, book_type, press, press_date, isbn, intro, price, amount, lend_amount, cur_lend_amount, rec_state, filepath, yisbn)
+			_, err = tx.Exec("UPDATE all_books SET title = ? , author = ? ,book_type = ? , press = ? , press_date = ? , isbn = ? , intro = ? , price = ? , amount = ? , lend_amount = ?, cur_lend_amount = ? , rec_state = ? , cover = ? WHERE isbn = ?", title, author, book_type, press, press_date, isbn, intro, price, amount, lend_amount, cur_lend_amount, rec_state, coverPath, yisbn)
 			if err != nil {
 				errorLog.Println("数据库错误：", err)
 				return
@@ -511,19 +487,8 @@ func DeleteBookHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func AdjustBookHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/adjust-book.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "adjust-book.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-	}
+	renderTemplate(w, "html/adjust-book.html", nil)
+
 
 	if r.Method == http.MethodPost {
 		adjust_date := r.FormValue("adjust_date")
@@ -552,17 +517,8 @@ func AdjustBookHandler(w http.ResponseWriter, r *http.Request) {
 
 func ViewLendRecords(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-lend-records.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "view-lend-records.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/view-lend-records.html", nil)
+		return
 	}
 
 	if r.Method == http.MethodPost {
@@ -615,17 +571,8 @@ func ViewLendRecords(w http.ResponseWriter, r *http.Request) {
 
 func ViewReturnRecords(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
-		tmpl, err := template.ParseFiles("html/view-return-records.html")
-		if err != nil {
-			fmt.Printf("解析模板失败: %v\n", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
-		err = tmpl.ExecuteTemplate(w, "view-return-records.html", nil)
-		if err != nil {
-			fmt.Printf("执行模板失败: %v\n", err)
-			errorLog.Println("服务器错误：", err)
-			http.Error(w, "服务器错误", http.StatusInternalServerError)
-		}
+		renderTemplate(w, "html/view-return-records.html", nil)
+		return
 	}
 
 	if r.Method == http.MethodPost {

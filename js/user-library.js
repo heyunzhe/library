@@ -1,195 +1,180 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const editButton = document.getElementById('editButton');
-    const modal = document.getElementById('editModal');
-    const closeModal = document.getElementById('closeModal');
-    const editForm = document.getElementById('editForm');
-    const changePasswordBtn = document.getElementById('changePasswordBtn');
-    const passwordFields = document.getElementById('passwordFields');
-    const returnModal = document.getElementById('model2');
-    const returnForm = document.getElementById('returnForm');
-    const submitReturnBtn = document.getElementById('submitReturn');
-    let currentBookToReturn = '';
-    let currentBookISBN = '';
+    const $ = id => document.getElementById(id);
+    const editModal = $('editModal');
+    const returnModal = $('returnModal');
+    const editForm = $('editForm');
+    const returnForm = $('returnForm');
 
-    function fetchUserData() {
-        fetch('/user/library', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+    // ==== 头像选择器 ====
+    let selectedAvatarPath = '';
+
+    document.querySelectorAll('.avatar-opt').forEach(opt => {
+        opt.addEventListener('click', function() {
+            const path = this.dataset.avatar;
+            if (path === '') {
+                // 上传按钮 → 打开文件选择
+                $('editPhoto').click();
+                return;
             }
-            return response.json();
-        })
-        .then(data => {
-            var userInfo = data.user_info;
+            document.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
+            this.classList.add('selected');
+            selectedAvatarPath = path;
+            $('editAvatarPreview').src = path;
+        });
+    });
 
-            document.getElementById('user_name').textContent = userInfo.name;
-            document.querySelector('.user-info p:nth-child(2)').textContent = `学生卡号: ${userInfo.username}`;
-            document.getElementById('edit_name').value = userInfo.name;
-            document.getElementById('edit_age').value = userInfo.age;
-            document.getElementById('edit_birthday').value = userInfo.birthday;
-            
-            const userAvatar = document.querySelector('.user-avatar');
-            if (userInfo.photo) {
-                userAvatar.src = '../' + userInfo.photo;
-            } else {
-                userAvatar.src = '../userphoto/default-avatar.jpg';
-            }
+    $('editPhoto').addEventListener('change', function() {
+        if (this.files && this.files[0]) {
+            const reader = new FileReader();
+            reader.onload = e => {
+                $('editAvatarPreview').src = e.target.result;
+                document.querySelectorAll('.avatar-opt').forEach(el => el.classList.remove('selected'));
+                selectedAvatarPath = ''; // 使用上传的文件
+            };
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
 
-            const statCards = document.querySelectorAll('.stat-card');
-            statCards[0].querySelector('p:nth-child(2)').textContent = `当前借阅: ${userInfo.user_cur_lend_amount}本`;
-            statCards[0].querySelector('p:nth-child(3)').textContent = `历史借阅: ${userInfo.user_his_lend_amount}本`;
-            statCards[1].querySelector('p').textContent = `已借阅: ${userInfo.user_cur_lend_amount}/5本`;
+    // ==== 加载用户数据 ====
+    fetch('/user/library', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(r => { if (!r.ok) throw new Error('请求失败'); return r.json(); })
+    .then(data => {
+        const u = data.user_info;
+        $('userName').textContent = u.name || u.username;
+        $('userEmail').textContent = u.email || '--';
+        $('userId').textContent = u.username;
+        $('userAvatar').src = u.photo ? '/' + u.photo : '/images/default-avatar.svg';
+        $('statCur').textContent = u.user_cur_lend_amount;
+        $('statHis').textContent = u.user_his_lend_amount;
+        $('statLimit').textContent = u.user_cur_lend_amount + '/5';
+        $('statAge').textContent = u.age || '--';
 
-            
-            const userInfoDiv = document.querySelector('.user-info div');
-            const birthdayPara = document.createElement('p');
-            birthdayPara.textContent = `生日: ${userInfo.birthday}`;
-            const agePara = document.createElement('p');
-            agePara.textContent = `年龄: ${userInfo.age}`;
-            userInfoDiv.appendChild(birthdayPara);
-            userInfoDiv.appendChild(agePara);
+        $('editName').value = u.name || '';
+        $('editEmail').value = u.email || '';
+        $('editBirthday').value = u.birthday || '';
+        $('editAge').value = u.age || 0;
+        $('editAvatarPreview').src = u.photo ? '/' + u.photo : '/images/default-avatar.svg';
 
+        // 借阅历史
+        const historyTbody = $('borrowHistoryList');
+        historyTbody.innerHTML = '';
+        if (data.loan_history && data.loan_history.length) {
+            $('hisCount').textContent = data.loan_history.length + ' 条';
+            data.loan_history.forEach(h => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${h.title}</td><td>${h.isbn}</td><td>${h.lend_date}</td><td>${h.return_date}</td><td>${h.late_fee || '0'}</td>`;
+                historyTbody.appendChild(tr);
+            });
+        } else {
+            historyTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">暂无借阅历史</td></tr>';
+        }
 
-            
-            const borrowHistoryList = document.getElementById('borrow_history_list');
-            borrowHistoryList.innerHTML = ''; // 清空现有内容
-            if (data.loan_history && data.loan_history.length > 0) {
-
-                data.loan_history.forEach(Loan => {
-                    const rows = document.createElement('tr');
-                    rows.innerHTML = `
-                    <td>${Loan.title}</td>
-                    <td>${Loan.isbn}</td>
-                    <td>${Loan.lend_date}</td>
-                    <td>${Loan.return_date}</td>
-                    <td>${Loan.late_fee}</td>
-                    `;
-                    borrowHistoryList.appendChild(rows);
-                });
-            }else{
-                 borrowHistoryList.innerHTML = '<tr><td colspan="5">暂无借阅历史</td></tr>';
-            }
-            
-            
-            const currentBorrowList = document.getElementById('current_borrow_list');
-            currentBorrowList.innerHTML = ''; // 清空现有内容
-            if (data.current_loans && data.current_loans.length > 0) {
-                data.current_loans.forEach(loan => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                    <td>${loan.title}</td>
-                    <td>${loan.isbn}</td>
-                    <td>${loan.lend_date}</td>
-                    <td>${loan.exp_return_date}</td>
-                        <td><button class="return-btn" data-book-name="${loan.title}" data-book-isbn="${loan.isbn}">归还</button></td>
-                    `;
-                    currentBorrowList.appendChild(row);
-                });
-            }else{
-                 currentBorrowList.innerHTML = '<tr><td colspan="5">当前没有借阅的书籍</td></tr>';
-            }
-            
-           
-            // 移除硬编码的邮箱
-            // const emailPara = userInfoDiv.querySelector('p:last-child');
-            // if (emailPara && emailPara.textContent.includes('@')) {
-            //     userInfoDiv.removeChild(emailPara);
-            // }
-
-
-            // 为归还按钮添加事件监听器
-            document.querySelectorAll('.return-btn').forEach(btn => {
+        // 当前借阅
+        const curTbody = $('currentBorrowList');
+        curTbody.innerHTML = '';
+        if (data.current_loans && data.current_loans.length) {
+            $('curCount').textContent = data.current_loans.length + ' 本';
+            data.current_loans.forEach(loan => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${loan.title}</td><td>${loan.isbn}</td><td>${loan.lend_date}</td><td>${loan.exp_return_date}</td>
+                    <td style="display:flex;gap:6px">
+                        <button class="read-btn" data-isbn="${loan.isbn}">阅读</button>
+                        <button class="return-btn" data-isbn="${loan.isbn}" data-title="${loan.title}">归还</button>
+                    </td>`;
+                curTbody.appendChild(tr);
+            });
+            curTbody.querySelectorAll('.return-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    currentBookToReturn = this.getAttribute('data-book-name');
-                    currentBookISBN = this.getAttribute('data-book-isbn');
-                    document.getElementById('bookISBN').value = currentBookISBN;
-                    returnModal.style.display = 'block';
+                    $('returnBookName').textContent = this.dataset.title;
+                    $('bookISBN').value = this.dataset.isbn;
+                    returnModal.classList.remove('hidden');
                 });
             });
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-            // alert('获取用户数据失败，请刷新页面重试。');
-        });
-    }
+            curTbody.querySelectorAll('.read-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    window.location.href = '/read/book?isbn=' + this.dataset.isbn;
+                });
+            });
+        } else {
+            curTbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px">当前没有借阅的书籍</td></tr>';
+        }
+    })
+    .catch(err => console.error('加载用户数据失败:', err));
 
-    fetchUserData();
-
-    editButton.addEventListener('click', function() {
-        modal.style.display = 'block';
+    // ==== 生日自动算年龄 ====
+    $('editBirthday').addEventListener('change', function() {
+        if (!this.value) return;
+        const b = new Date(this.value);
+        const now = new Date();
+        let age = now.getFullYear() - b.getFullYear();
+        const mDiff = now.getMonth() - b.getMonth();
+        if (mDiff < 0 || (mDiff === 0 && now.getDate() < b.getDate())) age--;
+        $('editAge').value = age >= 0 ? age : 0;
     });
 
-    closeModal.addEventListener('click', function() {
-        modal.style.display = 'none';
-    });
+    // ==== 弹窗控制 ====
+    $('editButton').addEventListener('click', () => editModal.classList.remove('hidden'));
+    $('closeModal').addEventListener('click', () => editModal.classList.add('hidden'));
+    $('cancelEdit').addEventListener('click', () => editModal.classList.add('hidden'));
+    $('closeReturn').addEventListener('click', () => returnModal.classList.add('hidden'));
+    $('cancelReturn').addEventListener('click', () => returnModal.classList.add('hidden'));
 
-    changePasswordBtn.addEventListener('click', function() {
-        passwordFields.style.display = passwordFields.style.display === 'none' ? 'block' : 'none';
-    });
+    editModal.addEventListener('click', e => { if (e.target === editModal) editModal.classList.add('hidden'); });
+    returnModal.addEventListener('click', e => { if (e.target === returnModal) returnModal.classList.add('hidden'); });
 
+    // ==== 提交编辑 ====
     editForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(editForm);
+        const fd = new FormData();
+        fd.append('name', $('editName').value);
+        fd.append('birthday', $('editBirthday').value);
 
+        const pwd = $('editPassword').value;
+        const newPwd = $('editNewPassword').value;
+        if (pwd) fd.append('password', pwd);
+        if (newPwd) fd.append('newpassword', newPwd);
 
-        fetch('/update/user', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.text();
-        })
-        .then(() => {
-            alert('个人信息更新成功');
-            modal.style.display = 'none';
-            window.location.href = '/user/library';
-        })
-        .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
-            alert('更新失败，请重试');
-        });
+        // 头像：优先用上传的文件，否则用选择的默认头像
+        const photoFile = $('editPhoto').files[0];
+        if (photoFile) {
+            fd.append('photo', photoFile);
+        } else if (selectedAvatarPath) {
+            // 发送选择的默认头像路径
+            fd.append('avatar_path', selectedAvatarPath);
+        }
+
+        fetch('/update/user', { method: 'POST', body: fd })
+            .then(r => r.json().catch(() => r.text()))
+            .then(res => {
+                if (res && res.error) { alert(res.error); return; }
+                alert('保存成功');
+                editModal.classList.add('hidden');
+                window.location.reload();
+            })
+            .catch(err => { alert('更新失败'); console.error(err); });
     });
 
-    // 归还书籍模态窗口相关功能
-    returnModal.querySelector('.close').addEventListener('click', function() {
-        returnModal.style.display = 'none';
-    });
-
-    returnModal.querySelector('.btn-secondary').addEventListener('click', function() {
-        returnModal.style.display = 'none';
-    });
-
-    submitReturnBtn.addEventListener('click', function(e) {
+    // ==== 归还书籍 ====
+    returnForm.addEventListener('submit', function(e) {
         e.preventDefault();
-        const formData = new FormData(returnForm);
-        // 不需要手动添加ISBN，因为它已经在隐藏字段中了
+        const fd = new FormData(returnForm);
+        fetch('/return/book', { method: 'POST', body: fd })
+            .then(r => {
+                if (r.ok) { alert('归还成功'); returnModal.classList.add('hidden'); window.location.reload(); }
+                else if (r.status === 403) { alert('卡密错误'); }
+                else throw new Error('服务器错误');
+            })
+            .catch(err => { alert('归还失败'); console.error(err); });
+    });
 
-        fetch('/return/book', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (response.ok) {
-                alert('归还成功');
-                returnModal.style.display = 'none';
-                window.location.href = '/user/library'; 
-            } else if (response.status === 403) {
-                alert('输入卡密错误');
-            } else {
-                throw new Error('Server error');
-            }
-        })
-        .catch(error => {
-            console.error('There was a problem with the return operation:', error);
-            alert('服务器错误，请重试');
-        });
+    // ==== 退出登录 ====
+    $('logoutLink').addEventListener('click', function(e) {
+        e.preventDefault();
+        fetch('/ulogout', { method: 'POST' })
+            .then(() => { localStorage.removeItem('isLoggedIn'); window.location.href = '/index'; })
+            .catch(() => { localStorage.removeItem('isLoggedIn'); window.location.href = '/index'; });
     });
 });

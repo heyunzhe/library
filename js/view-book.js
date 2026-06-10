@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
         books.forEach((book, index) => {
             const row = document.createElement('tr');
             row.innerHTML = `
+                <td><img src="../${book.cover}" style="max-height: 50px;"></td>
                 <td>${book.title}</td>
                 <td>${book.author}</td>
                 <td>${book.isbn}</td>
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <p><strong>是否推荐：</strong>${book.rec_state == "1" ? '是' : '否'}</p>
                 ${book.rec_state == "1" ? `<p><strong>推荐类型：</strong>${book.rec_type}</p>` : ''}
             `;
-            detailModal.style.display = 'block';
+            detailModal.classList.add('active');
         } else if (e.target.classList.contains('edit-book')) {
             const index = e.target.dataset.index;
             const book = currentBooks[index];
@@ -94,11 +95,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             document.getElementById('yisbn').value = book.isbn;
             toggleRecType();
-            editModal.style.display = 'block';
+            editModal.classList.add('active');
         }
     });
 
     recState.addEventListener('change', toggleRecType);
+
+    function closeModals() {
+        detailModal.classList.remove('active');
+        editModal.classList.remove('active');
+    }
 
     function toggleRecType() {
         recTypeContainer.style.display = recState.checked ? 'block' : 'none';
@@ -116,7 +122,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => {
             if (response.ok) {
                 alert("更新成功")
-                editModal.style.display = 'none';
+                closeModals();
                 searchForm.dispatchEvent(new Event('submit'));
             } else if (response.status === 409){
                 alert("此isbn被占用")
@@ -146,7 +152,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (response.ok) {
                     alert("删除成功");
-                    editModal.style.display = 'none';
+                    closeModals();
                     searchForm.dispatchEvent(new Event('submit'));
                 }
             })
@@ -158,18 +164,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     for (let i = 0; i < closeBtns.length; i++) {
-        closeBtns[i].onclick = function() {
-            detailModal.style.display = 'none';
-            editModal.style.display = 'none';
-        }
+        closeBtns[i].onclick = closeModals;
     }
 
     window.onclick = function(event) {
-        if (event.target == detailModal) {
-            detailModal.style.display = 'none';
-        }
-        if (event.target == editModal) {
-            editModal.style.display = 'none';
+        if (event.target == detailModal || event.target == editModal) {
+            closeModals();
         }
     }
 

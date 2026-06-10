@@ -5,23 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>智慧图书馆</title>
 
-    <link rel="stylesheet"  href="../css/library.css">
-    <link rel="stylesheet" href="../font/font/iconfont.css">
-    <link rel="stylesheet" href="../font/font1/iconfont.css">
-    <link rel="stylesheet" href="../font/font2/iconfont.css">
-    <link rel="stylesheet" href="../font/font3/iconfont.css">
-    <link rel="stylesheet" href="../font/font4/iconfont.css">
-    <link rel="stylesheet" href="../font/font5/iconfont.css">
-    <link rel="stylesheet" href="../font/font6/iconfont.css">
-    <link rel="stylesheet" href="../font/font7/iconfont.css">
+    <link rel="stylesheet"  href="/css/library.css">
+    <link rel="stylesheet" href="/font/font/iconfont.css">
+    <link rel="stylesheet" href="/font/font1/iconfont.css">
+    <link rel="stylesheet" href="/font/font2/iconfont.css">
+    <link rel="stylesheet" href="/font/font3/iconfont.css">
+    <link rel="stylesheet" href="/font/font4/iconfont.css">
+    <link rel="stylesheet" href="/font/font5/iconfont.css">
+    <link rel="stylesheet" href="/font/font6/iconfont.css">
+    <link rel="stylesheet" href="/font/font7/iconfont.css">
 
 
 </head>
 
 <body>
-    <div class="fbox" id="fbox">
+    <div class="fbox" id="fbox" style="background-image:url('/images/home.jpg')">
         <div class="box1">
-            <img class="logo1" src="../images/logo.png" alt="">
+            <img class="logo1" src="/images/logo.png" alt="">
             <a class="user" id="authButton" href="/login">登录</a>
         </div>
     
@@ -40,7 +40,7 @@
         <div class="box3" id="search_div">
             <div class="box4" id="book_search">图书搜索</div>
             <div class="box5" id="web_search">站内搜索</div>
-            <div class="box6">
+            <div class="box6" style="background-image:url('/images/1.png')">
                 <p class="box6-1">图书搜索</p>
                 <form action="/search/book" method="get">        
                 <div class="box7">
@@ -65,7 +65,7 @@
 
 
 
-    <div class="fbox1">
+    <div class="fbox1" style="background-image:url('/images/home5.jpg')">
         <div class="box10">
             <p class="notice_title">馆内公告</p>
             <ul>
@@ -102,8 +102,8 @@
         </div>
         <div class="box12">
             <p class="notice_title">馆员推荐</p>
-            <a href="https://mp.weixin.qq.com/s/rbuCLq8ONekJ7r0DeA6r_w" target="_blank"><img src="../images/rec.jpg" class="rec"></a>
-            <a href="https://mp.weixin.qq.com/s/W4b3yXktkOGWuyopXFBfsA" target="_blank"><img src="../images/rec1.jpg" class="rec1"></a>
+            <a href="https://mp.weixin.qq.com/s/rbuCLq8ONekJ7r0DeA6r_w" target="_blank"><img src="/images/rec.jpg" class="rec"></a>
+            <a href="https://mp.weixin.qq.com/s/W4b3yXktkOGWuyopXFBfsA" target="_blank"><img src="/images/rec1.jpg" class="rec1"></a>
             <a class="more1">更多</a>
 
         </div>
@@ -132,33 +132,33 @@
 
     </div>
     
-    <div class="fbox2">
+    <div class="fbox2" style="background-image:url('/images/cover.jpg')">
         <p class="more2"><a href="#">更多</a></p>
         <div class="rec_book" >好书推荐</div>
         <div class="new_book">新书上架</div>
         <div class="box15"></div>
         <div class="box16">
-            <img src="../images/image1.jpg" alt="" class="book">
+            <img src="/images/image1.jpg" alt="" class="book">
             <div class="title">活着</div>
             <div class="author">余华</div>
         </div>
         <div class="box17">
-            <img src="../images/image2.jpg" alt="" class="book">
+            <img src="/images/image2.jpg" alt="" class="book">
             <div class="title">提问的艺术</div>
             <div class="author">[美] 特里.费德姆</div>
         </div>
         <div class="box18">
-            <img src="../images/image3.jpg" alt="" class="book">
+            <img src="/images/image3.jpg" alt="" class="book">
             <div class="title">狂人日记</div>
             <div class="author">鲁迅</div>
         </div>
         <div class="box19">
-            <img src="../images/image4.jpg" alt="" class="book">
+            <img src="/images/image4.jpg" alt="" class="book">
             <div class="title">钢铁是怎样炼成的</div>
             <div class="author">（苏）尼·奥斯特洛夫斯基</div>
         </div>
         <div class="box20">
-            <img src="../images/image5.jpg" alt="" class="book">
+            <img src="/images/image5.jpg" alt="" class="book">
             <div class="title">骆驼祥子</div>
             <div class="author">老舍</div>
         </div>
@@ -182,7 +182,7 @@
                     <div>电子邮箱：285679@163.com</div>
                 </div>
                 <div class="box24">
-                    <img src="../images/logo.png" alt=""  class="end-logo">
+                    <img src="/images/logo.png" alt=""  class="end-logo">
                     <div  class="box24-1">
                         <a href="">
                             <br>
@@ -223,7 +223,7 @@
             <span class="iconfont icon-changguanshuoming" id="change"></span>
         </a>
         <div>场馆说明</div>
-        <a href="/user/library">
+        <a href="/user/library" onclick="return checkLogin()">
             <span class="iconfont icon-wodetushuguan" id="wodet"></span>
         </a>
         <div>我的图书馆</div>
@@ -264,9 +264,9 @@
 </div>
 
 
-    <script src="../js/admin.js"></script>
-    <script src="../js/library.js"></script>
-    <script src="../js/adduseropi.js"></script>
+    <script src="/js/admin.js"></script>
+    <script src="/js/library.js"></script>
+    <script src="/js/adduseropi.js"></script>
 
 </body>
 </html>

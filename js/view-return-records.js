@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('lendRecordsForm');
+    const form = document.getElementById('returnRecordsForm');
     const queryType = document.getElementById('queryType');
     const queryInput = document.getElementById('queryInput');
-    const table = document.getElementById('lendRecordsTable');
+    const table = document.getElementById('returnRecordsTable');
 
     queryType.addEventListener('change', function() {
         if (this.value === '2') {

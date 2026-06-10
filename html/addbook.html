@@ -4,55 +4,121 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>添加图书</title>
-    <link rel="stylesheet" href="../css/addbook.css">
+    <link rel="stylesheet" href="/css/addbook.css">
 </head>
 <body>
-    <h1>图书管理系统</h1>
-    <form action="/add/book" method="post" enctype="multipart/form-data" id="addbook">
-        <h2>添加新书</h2>
-        <label for="title">标题：</label>
-        <input type="text" name="title" id="title" required>
-        
-        <label for="author">作者：</label>
-        <input type="text" name="author" id="author" required>
-        
-        <label for="book_type">类型：</label>
-        <input type="text" name="book_type" id="book_type" required>
-        
-        <label for="press">出版社：</label>
-        <input type="text" name="press" id="press" required>
-        
-        <label for="press_date">出版日期：</label>
-        <input type="date" name="press_date" id="press_date" required>
-        
-        <label for="isbn">ISBN：</label>
-        <input type="text" name="isbn" id="isbn" required>
-        
-        <label for="cover">封面：</label>
-        <input type="file" name="cover" accept="image/*" id="cover" required>
-        
-        <label for="intro">简介：</label>
-        <input type="text" name="intro" id="intro" required>
-        
-        <label for="price">价格：</label>
-        <input type="text" name="price" id="price" required>
-        
-        <label for="amount">数量：</label>
-        <input type="text" name="amount" id="amount" required>
-        
-        <label for="lend_amount">可借数：</label>
-        <input type="text" name="lend_amount" id="lend_amount" required>
-        
-        <label>
-            <input type="checkbox" name="rec_state" value="1" id="recStateCheckbox"> 是否推荐
-        </label>
-        
-        <input type="text" name="rec_type" id="recTypeInput" class="hidden" placeholder="请输入推荐类型">
-        <button type="reset">清空</button>
-        <button type="submit">添加图书</button>
-    </form>
+    <nav class="top-nav">
+        <div class="nav-inner">
+            <a href="/admin" class="nav-brand">📚 后台</a>
+            <div class="nav-links">
+                <a href="/admin">首页</a>
+                <a href="/view/book">图书</a>
+                <a href="/add/book" class="active">添加</a>
+                <a href="/add/notice">公告</a>
+            </div>
+        </div>
+    </nav>
 
-    <script src="../js/addbook.js"></script>
+    <div class="container">
+        <div class="page-header">
+            <h1>📚 添加新书</h1>
+            <p>录入新图书信息到系统</p>
+        </div>
 
+        <form action="/add/book" method="post" enctype="multipart/form-data" id="addbook">
+            <!-- 基本信息 -->
+            <div class="form-section">
+                <h3 style="font-size: 16px; color: #475569; margin-bottom: 16px;">基本信息</h3>
+
+                <div class="form-group">
+                    <label for="title">书名<span class="required">*</span></label>
+                    <input type="text" name="title" id="title" required placeholder="请输入书名">
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="author">作者<span class="required">*</span></label>
+                        <input type="text" name="author" id="author" required placeholder="请输入作者">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="isbn">ISBN<span class="required">*</span></label>
+                        <input type="text" name="isbn" id="isbn" required placeholder="请输入ISBN">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="book_type">类型<span class="required">*</span></label>
+                        <input type="text" name="book_type" id="book_type" required placeholder="如：文学、科幻">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="press">出版社</label>
+                        <input type="text" name="press" id="press" placeholder="请输入出版社">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="press_date">出版日期</label>
+                        <input type="date" name="press_date" id="press_date">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 价格库存 -->
+            <div class="form-section" style="margin-top: 24px;">
+                <h3 style="font-size: 16px; color: #475569; margin-bottom: 16px;">价格库存</h3>
+
+                <div class="form-row">
+                    <div class="form-group flex-1">
+                        <label for="price">价格<span class="required">*</span></label>
+                        <input type="number" name="price" id="price" step="0.01" required placeholder="¥0.00">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="amount">总数量<span class="required">*</span></label>
+                        <input type="number" name="amount" id="amount" required placeholder="0">
+                    </div>
+                    <div class="form-group flex-1">
+                        <label for="lend_amount">可借数量<span class="required">*</span></label>
+                        <input type="number" name="lend_amount" id="lend_amount" required placeholder="0">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 详情 -->
+            <div class="form-section" style="margin-top: 24px;">
+                <h3 style="font-size: 16px; color: #475569; margin-bottom: 16px;">详情</h3>
+
+                <div class="form-group">
+                    <label for="intro">书籍简介</label>
+                    <textarea name="intro" id="intro" placeholder="请输入书籍简介（可选）"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="cover">封面图片<span class="required">*</span></label>
+                    <input type="file" name="cover" accept="image/*" id="cover" required>
+                </div>
+
+                <div class="switch-group">
+                    <label for="recStateCheckbox">推荐图书</label>
+                    <label class="switch">
+                        <input type="checkbox" name="rec_state" value="1" id="recStateCheckbox">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group" id="recTypeContainer" style="display: none;">
+                    <label for="rec_type">推荐类型</label>
+                    <input type="text" name="rec_type" id="rec_type" placeholder="如：新书推荐、经典文学">
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="reset" class="btn btn-secondary">清空</button>
+                <button type="submit" class="btn btn-primary">添加图书</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="/js/addbook.js"></script>
 </body>
-</html>
