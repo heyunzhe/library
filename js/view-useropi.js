@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const opinionsList = document.getElementById('opinionsList');
 
     const replyModal = document.getElementById('replyModal');
-    const closeModal = document.querySelector('.close');
     const replyForm = document.getElementById('replyForm');
 
     const viewModal = document.getElementById('viewModal');
@@ -103,8 +102,10 @@ document.addEventListener('DOMContentLoaded', function() {
         replyModal.classList.add('active');
     }
 
-    // 关闭回复
-    closeModal.onclick = () => replyModal.classList.remove('active');
+    // 关闭回复（X按钮 + 取消按钮）
+    replyModal.querySelectorAll('.modal-close').forEach(btn => {
+        btn.onclick = () => replyModal.classList.remove('active');
+    });
 
     // 关闭查看
     closeView.onclick = () => viewModal.classList.remove('active');

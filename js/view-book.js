@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const recTypeContainer = document.getElementById('recTypeContainer');
     const detailModal = document.getElementById('detailModal');
     const editModal = document.getElementById('editModal');
-    const closeBtns = document.getElementsByClassName('close');
+    const closeBtns = document.getElementsByClassName('modal-close');
 
     let currentBooks = [];
 

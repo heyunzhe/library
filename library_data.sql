@@ -428,7 +428,8 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('测试用户','1','$2a$10$Oj3QvMOvUoCCdTpHzM4uoOvlaSOPvbJ5mAbckWv6s15vrrUwCl0zq',0,24,'2000-01-01',26,'images/avatar-5.svg','2856791147@qq.com',1,'2026-06-02 13:00:28'),('奕奕','2','$2a$10$h4nQOUGT626SpnC8ysT8deYMuBDwlQnuM/ecg5MtbFadzHTUR/zrC',0,4,'2024-10-25',1,'images/image-2.jpg','',1,'2026-06-02 13:00:28'),('3368820338@qq.com','3368820338@qq.com','$2a$10$jk03GYqfCxEBD9byE1CaLeUYCQO5Zg5QnnLqPM9gq4NdLXx5fKfBi',0,0,'',0,'','3368820338@qq.com',1,'2026-06-02 14:22:42');
+INSERT INTO `users` VALUES
+-- 用户1的密码已改为 '1' ('测试用户','1','$2a$10$Oj3QvMOvUoCCdTpHzM4uoOvlaSOPvbJ5mAbckWv6s15vrrUwCl0zq',0,24,'2000-01-01',26,'images/avatar-5.svg','2856791147@qq.com',1,'2026-06-02 13:00:28'),('奕奕','2','$2a$10$h4nQOUGT626SpnC8ysT8deYMuBDwlQnuM/ecg5MtbFadzHTUR/zrC',0,4,'2024-10-25',1,'images/image-2.jpg','',1,'2026-06-02 13:00:28'),('3368820338@qq.com','3368820338@qq.com','$2a$10$jk03GYqfCxEBD9byE1CaLeUYCQO5Zg5QnnLqPM9gq4NdLXx5fKfBi',0,0,'',0,'','3368820338@qq.com',1,'2026-06-02 14:22:42');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
