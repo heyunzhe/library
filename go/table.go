@@ -266,4 +266,11 @@ func Init() {
 	if err != nil {
 		errorLog.Println(err)
 	}
+
+	// 插入默认管理员（首次部署用）
+	_, err = db.Exec("INSERT IGNORE INTO admin (admin_id, admin_password, admin_role) VALUES (?, ?, ?)",
+		"a", "1", "super")
+	if err != nil {
+		errorLog.Println("插入默认管理员失败:", err)
+	}
 }
