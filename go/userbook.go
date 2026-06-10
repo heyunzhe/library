@@ -22,9 +22,19 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// POST 请求需要身份验证（通过JWT）
+	// POST 请求需要身份验证（优先JWT，其次Session）
 	username := GetUsername(r)
 	if username == "" {
+		// 尝试从 Session 获取
+		session, err := store.Get(r, "user-session")
+		if err == nil {
+			if u, ok := session.Values["username"].(string); ok {
+				username = u
+			}
+		}
+	}
+	if username == "" {
+		errorLog.Println("借书失败: 用户未登录")
 		http.Error(w, "未登录", http.StatusUnauthorized)
 		return
 	}
@@ -33,32 +43,36 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 	expReturnDate := r.FormValue("exp_return_date")
 
 	if isbn == "" || expReturnDate == "" {
+		errorLog.Println("借书失败: 参数不完整", username, isbn, expReturnDate)
 		http.Error(w, "参数不完整", http.StatusBadRequest)
 		return
 	}
 
 	// 验证日期格式
-	_, err := time.Parse("2006-01-02", expReturnDate)
-	if err != nil {
+	_, parseErr := time.Parse("2006-01-02", expReturnDate)
+	if parseErr != nil {
+		errorLog.Println("借书失败: 日期格式无效", expReturnDate)
 		http.Error(w, "日期格式无效", http.StatusBadRequest)
 		return
 	}
 
 	// 检查是否已经借过同一本书
 	var exists int
-	err = db.QueryRow("SELECT COUNT(*) FROM cur_lend_records WHERE username = ? AND isbn = ?", username, isbn).Scan(&exists)
+	err := db.QueryRow("SELECT COUNT(*) FROM cur_lend_records WHERE username = ? AND isbn = ?", username, isbn).Scan(&exists)
 	if err != nil {
 		errorLog.Println("查询借阅记录失败:", err)
 		http.Error(w, "服务器错误", http.StatusInternalServerError)
 		return
 	}
 	if exists > 0 {
+		errorLog.Printf("借书失败: 用户 %s 已借阅 ISBN=%s\n", username, isbn)
 		http.Error(w, "已借阅此书", http.StatusForbidden)
 		return
 	}
 
 	tx, err := db.Begin()
 	if err != nil {
+		errorLog.Println("借书失败: 开启事务失败", err)
 		http.Error(w, "服务器错误", http.StatusInternalServerError)
 		return
 	}
@@ -85,6 +99,7 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 检查是否达到借书上限（假设最多5本）
 	if userCurLend >= 5 {
+		errorLog.Printf("借书失败: 用户 %s 已达借阅上限(%d本)\n", username, userCurLend)
 		tx.Rollback()
 		http.Error(w, "已达借阅上限", http.StatusForbidden)
 		return
@@ -92,6 +107,7 @@ func LendBookHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 检查是否有可借数量
 	if curLendAmount <= 0 {
+		errorLog.Printf("借书失败: 图书 %s(%s) 已被借完\n", title, isbn)
 		tx.Rollback()
 		http.Error(w, "此书已被借完", http.StatusNotFound)
 		return
