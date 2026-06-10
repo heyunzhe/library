@@ -90,9 +90,8 @@ SMTP_PASS="邮箱授权码" \
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| `app` | `8080` | Go 应用 |
+| `backend` | `8080` | Go 应用 |
 | `mysql` | `3306` | 数据库 |
-| `nginx` | `80 → 8080` | 反向代理（可选） |
 
 ```
 
@@ -141,8 +140,7 @@ library/
 ├── images/              # 图书封面图片
 ├── font/                # 图标字体
 ├── Dockerfile           # Docker 构建文件
-├── docker-compose.yml   # Docker Compose 配置
-└── nginx/               # Nginx 配置
+└── docker-compose.yml   # Docker Compose 配置
 ```
 
 ---
@@ -150,11 +148,8 @@ library/
 ## ⚠️ 注意事项
 
 ### 1. 首次部署
-- 程序启动时会自动创建数据库表，无需手动建表
-- **必须导入初始管理员数据**：在 MySQL 中执行
-  ```sql
-  INSERT IGNORE INTO admin (admin_id, admin_password, admin_role) VALUES ('a', '1', 'super');
-  ```
+- 程序启动时会自动创建数据库表，**无需手动建表**
+- 默认管理员账号 **`a` / `1`** 已自动插入，开箱即用
 
 ### 2. 邮箱配置（可选，默认不配置）
 - 注册验证码、密码重置需要配置 SMTP，**需使用你自己的邮箱账号**
