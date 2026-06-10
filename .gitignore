@@ -32,3 +32,5 @@ nginx/
 
 # 临时文件
 tmp/
+library-docker-images.tar.gz
+*.tar.gz
