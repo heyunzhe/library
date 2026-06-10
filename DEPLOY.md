@@ -173,14 +173,51 @@ library/
 
 ## 🔧 常见问题
 
+**Q: Docker 构建时提示 `i/o timeout` 或无法拉取镜像？**
+- 国内网络访问 Docker Hub 可能不稳定
+- **解决方法：** 配置 Docker 镜像加速器
+  ```bash
+  # Linux 系统
+  sudo mkdir -p /etc/docker
+  sudo tee /etc/docker/daemon.json <<-'EOF'
+  {
+    "registry-mirrors": ["https://docker.mirrors.ustc.edu.cn"]
+  }
+  EOF
+  sudo systemctl daemon-reload
+  sudo systemctl restart docker
+  ```
+- 或者直接手动编译运行（见下方"手动部署"）
+
 **Q: 启动后访问页面报 500？**
-- 检查 MySQL 是否正常运行
+- 检查 MySQL 是否正常运行：`docker ps | grep mysql`
+- 查看应用日志：`docker compose logs backend`
 - 检查 `MYSQL_DSN` 配置是否正确
+- MySQL 刚启动时需要几秒钟初始化，如果一启动就访问会报错，等 10 秒再刷新
+
+**Q: 登录提示"账号或密码错误"？**
+- 默认管理员是 **`a`**，密码 **`1`**
+- 如果用的是旧数据库，管理员可能不同，查一下 MySQL：`SELECT * FROM admin;`
+- 首次部署程序会自动插入默认管理员，但如果 `admin` 表已有数据则不会覆盖
 
 **Q: 发送验证码失败？**
 - 检查 SMTP 配置是否正确
-- QQ邮箱需要使用授权码，不是密码
+- QQ邮箱需要使用**授权码**（不是QQ密码），参考：[QQ邮箱帮助中心](https://help.mail.qq.com/)
+- 如果不配置邮箱，可以直接在数据库中添加用户，或使用管理员后台重置密码
 
 **Q: 如何添加图书？**
 - 使用管理员账号登录后台 → 图书管理 → 添加图书
 - 需要上传封面图片
+- 添加后可在首页、排行榜中查看
+
+**Q: Docker 和手动部署有什么区别？**
+- **Docker 部署**（推荐）：一键启动，MySQL 和 Go 应用都在容器里，互不干扰
+- **手动部署**：需要本地装 Go 和 MySQL，适合想自己控制环境的用户
+- 两者功能完全一样
+
+**Q: 如何修改默认的管理员密码？**
+- 登录后台后，使用管理员重置密码功能
+- 或直接在 MySQL 中修改：
+  ```sql
+  UPDATE admin SET admin_password = '新密码' WHERE admin_id = 'a';
+  ```
