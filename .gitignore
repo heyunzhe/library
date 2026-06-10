@@ -34,3 +34,7 @@ nginx/
 tmp/
 library-docker-images.tar.gz
 *.tar.gz
+
+# 项目管理文件（设计文档、流程图等）
+need/
+nginx/

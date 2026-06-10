@@ -60,8 +60,8 @@ CREATE DATABASE library CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 | `JWT_SECRET` | JWT 签名密钥 | `your-256-bit-secret-key-change-in-production!!` |
 | `SMTP_HOST` | 邮件服务器地址 | `smtp.qq.com` |
 | `SMTP_PORT` | 邮件服务器端口 | `587` |
-| `SMTP_USER` | 邮箱账号 | - |
-| `SMTP_PASS` | 邮箱密码/授权码 | - |
+| `SMTP_USER` | 邮箱账号（需你自己申请） | - |
+| `SMTP_PASS` | 邮箱密码/授权码（需你自己申请） | - |
 
 ### 3. 编译运行
 
@@ -156,9 +156,9 @@ library/
   INSERT IGNORE INTO admin (admin_id, admin_password, admin_role) VALUES ('a', '1', 'super');
   ```
 
-### 2. 邮箱配置（可选）
-- 注册验证码、密码重置需要配置 SMTP
-- QQ邮箱需开启 SMTP 服务并使用 **授权码**（不是QQ密码）
+### 2. 邮箱配置（可选，默认不配置）
+- 注册验证码、密码重置需要配置 SMTP，**需使用你自己的邮箱账号**
+- QQ邮箱需开启 SMTP 服务并使用 **授权码**（不是QQ密码），参考：[QQ邮箱帮助中心](https://help.mail.qq.com/)
 - 如果不配置邮箱，管理员可以直接在数据库中添加用户
 
 ### 3. MySQL 模式
