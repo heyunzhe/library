@@ -18,9 +18,12 @@
 git clone https://github.com/heyunzhe/library.git
 cd library
 
-# 2. 配置环境变量（可选，有默认值）
+# 2. 生成随机密钥并配置环境变量
 cp .env.example .env
-# 编辑 .env 文件中的配置
+# 替换 .env 中的 JWT_SECRET 和 COOKIE_SECRET 为随机值：
+#   JWT_SECRET=$(openssl rand -base64 32)
+#   COOKIE_SECRET=$(openssl rand -base64 32)
+# 编辑 .env 文件中的其他配置（如邮箱等，可选）
 
 # 3. 启动服务
 docker-compose up -d
@@ -53,11 +56,18 @@ CREATE DATABASE library CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 ### 2. 环境变量
 
+> **⚠️ 重要：** `JWT_SECRET` 和 `COOKIE_SECRET` 不要用示例值，必须生成随机密钥：
+> ```bash
+> # 生成 32 字节的随机密钥
+> JWT_SECRET=$(openssl rand -base64 32)
+> COOKIE_SECRET=$(openssl rand -base64 32)
+> ```
+
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
 | `MYSQL_DSN` | MySQL 连接字符串 | `root:123456@tcp(127.0.0.1:3306)/library?charset=utf8mb4&parseTime=True&loc=Local` |
-| `COOKIE_SECRET` | Session 加密密钥 | `default-cookie-secret-key-change-in-production` |
-| `JWT_SECRET` | JWT 签名密钥 | `your-256-bit-secret-key-change-in-production!!` |
+| `COOKIE_SECRET` | Session 加密密钥 | ⚠️ 必须用 `openssl rand -base64 32` 生成 |
+| `JWT_SECRET` | JWT 签名密钥 | ⚠️ 必须用 `openssl rand -base64 32` 生成 |
 | `SMTP_HOST` | 邮件服务器地址 | `smtp.qq.com` |
 | `SMTP_PORT` | 邮件服务器端口 | `587` |
 | `SMTP_USER` | 邮箱账号（需你自己申请） | - |
@@ -66,16 +76,17 @@ CREATE DATABASE library CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ### 3. 编译运行
 
 ```bash
-# 编译
+# 1. 生成随机密钥
+COOKIE_SECRET=$(openssl rand -base64 32)
+JWT_SECRET=$(openssl rand -base64 32)
+
+# 2. 编译
 go build -o library-server .
 
-# 运行（可添加环境变量）
+# 3. 运行（传入密钥和数据库配置）
 MYSQL_DSN="root:密码@tcp(数据库IP:3306)/library?charset=utf8mb4&parseTime=True&loc=Local" \
-COOKIE_SECRET="自定义密钥" \
-JWT_SECRET="自定义JWT密钥" \
-SMTP_HOST="smtp.qq.com" \
-SMTP_USER="your@qq.com" \
-SMTP_PASS="邮箱授权码" \
+COOKIE_SECRET="$COOKIE_SECRET" \
+JWT_SECRET="$JWT_SECRET" \
 ./library-server
 ```
 
@@ -164,8 +175,10 @@ library/
   ```
 
 ### 4. 生产环境建议
-- 修改默认的 `COOKIE_SECRET` 和 `JWT_SECRET`
+- **必须** 用 `openssl rand -base64 32` 生成新的 `COOKIE_SECRET` 和 `JWT_SECRET`，不要使用示例值
 - 修改默认管理员密码
+- 使用 HTTPS
+- MySQL 不要使用 root 账户，创建一个专用数据库用户
 - 使用 HTTPS
 - MySQL 不要使用 root 账户，创建一个专用数据库用户
 
