@@ -38,3 +38,9 @@ library-docker-images.tar.gz
 # 项目管理文件（设计文档、流程图等）
 need/
 nginx/
+
+# 文档（非部署必需）
+md/
+TEST_REPORT.md
+操作记录.md
+CLAUDE.md
